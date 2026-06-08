@@ -1,1586 +1,721 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Phone, 
-  Clock, 
-  MapPin, 
-  ChevronRight, 
-  Menu, 
-  X, 
-  Star, 
-  ShoppingBag, 
-  Utensils, 
-  Users, 
-  Calendar, 
-  Heart, 
-  Award, 
-  Coffee, 
-  Info, 
-  Check, 
-  ArrowRight,
-  Plus,
-  Minus,
-  Trash2
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tito's Diner - Fairfax's Favorite Diner</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React & ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- Babel CDN (agar browser bisa membaca JSX) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Lucide Icons (untuk ikon) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-[#FDFBF7]">
+  <div id="root"></div>
 
-// === DATABASE MENU DENGAN INTEGRASI GAMBAR GITHUB & FALLBACK UNSPLASH ===
-const MENU_ITEMS = [
-  // BREAKFAST
-  {
-    id: 'pancake-stack',
-    name: 'Classic Pancake Stack',
-    category: 'Breakfast',
-    price: 12.99,
-    description: 'Our legendary stack of fluffy, golden buttermilk pancakes served with fresh whipped butter and pure, warm maple syrup.',
-    rating: 4.9,
-    reviews: 124,
-    tag: 'Best Seller',
-    imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_pancakes.jpg',
-    fallbackSrc: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'western-omelette',
-    name: 'Western Omelette',
-    category: 'Omelets',
-    price: 13.49,
-    description: 'Three farm-fresh eggs folded with premium diced ham, green bell peppers, sweet onions, and melted Wisconsin Cheddar.',
-    rating: 4.8,
-    reviews: 96,
-    tag: 'Local Favorite',
-    imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_omelette.jpg',
-    fallbackSrc: 'https://images.unsplash.com/photo-1510629954389-c1e0da47d415?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'titos-burger',
-    name: "Tito’s Classic Bacon Burger",
-    category: 'Burgers',
-    price: 14.99,
-    description: 'Juicy 200g flame-grilled Angus beef patty with Cheddar cheese, crispy applewood smoked bacon, lettuce, tomato, and Tito’s signature special sauce.',
-    rating: 5.0,
-    reviews: 215,
-    tag: 'Signature',
-    imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_bacon_burger.jpg',
-    fallbackSrc: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'club-sandwich',
-    name: 'Classic Club Sandwich',
-    category: 'Sandwiches',
-    price: 13.99,
-    description: 'A toasted triple-decker packed with thin-sliced roasted chicken breast, crispy bacon, Swiss cheese, fresh lettuce, tomato, and creamy mayo.',
-    rating: 4.7,
-    reviews: 142,
-    tag: 'Popular',
-    imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_club_sandwich.jpg',
-    fallbackSrc: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=800&q=80'
-  },
-  // ENTREES & OTHERS
-  {
-    id: 'country-fried-steak',
-    name: 'Country Fried Steak',
-    category: 'Entrées',
-    price: 16.99,
-    description: 'Tender beef steak hand-breaded and golden-fried, smothered in our rich, peppery white country gravy. Served with homestyle mashed potatoes.',
-    rating: 4.9,
-    reviews: 188,
-    tag: 'Legendary',
-    imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_fried_steak.jpg',
-    fallbackSrc: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'belgian-waffle',
-    name: 'Tito’s Belgian Waffle',
-    category: 'Pancakes & Waffles',
-    price: 11.49,
-    description: 'Thick, crispy-on-the-outside, light-on-the-inside Belgian waffle dusted with powdered sugar and crowned with fresh berries.',
-    rating: 4.8,
-    reviews: 82,
-    tag: 'Sweet Treat',
-    imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_belgian_waffle.jpg',
-    fallbackSrc: 'https://images.unsplash.com/photo-1562376502-6f769499c886?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'apple-pie',
-    name: 'Classic Deep Dish Apple Pie',
-    category: 'Desserts',
-    price: 6.99,
-    description: 'Warm, spiced cinnamon-apple pie baked in a flaky homestyle crust. Served with a scoop of premium vanilla bean ice cream.',
-    rating: 4.9,
-    reviews: 156,
-    tag: 'Best Seller',
-    imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_apple_pie.jpg',
-    fallbackSrc: 'https://images.unsplash.com/photo-1519869325930-281384150729?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'milkshake',
-    name: 'Premium Diner Milkshake',
-    category: 'Beverages',
-    price: 5.99,
-    description: 'Thick, old-fashioned hand-spun milkshake made with premium ice cream, topped with real whipped cream and a maraschino cherry.',
-    rating: 5.0,
-    reviews: 194,
-    tag: 'Must Try',
-    imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_milkshake.jpg',
-    fallbackSrc: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=800&q=80'
-  }
-];
+  <!-- Deklarasikan script type sebagai text/babel -->
+  <script type="text/babel">
+    // Ambil ikon-ikon yang dibutuhkan dari library Lucide
+    const { 
+      Phone, Clock, MapPin, ChevronRight, Menu, X, Star, 
+      ShoppingBag, Utensils, Users, Calendar, Heart, Award, 
+      Coffee, Info, Check, ArrowRight, Plus, Minus, Trash2 
+    } = lucide;
 
-// === COMPONENT PENANGAN ERROR GAMBAR ===
-const SmartImage = ({ src, fallback, alt, className }) => {
-  const [imgSrc, setImgSrc] = useState(src);
-  const [hasError, setHasError] = useState(false);
-
-  const handleError = () => {
-    if (!hasError) {
-      setImgSrc(fallback);
-      setHasError(true);
-    }
-  };
-
-  return (
-    <img 
-      src={imgSrc} 
-      onError={handleError} 
-      alt={alt} 
-      className={`${className} transition-opacity duration-500 ease-in-out`}
-      loading="lazy"
-    />
-  );
-};
-
-// === COMPONENT POPUP NOTIFIKASI ===
-const CustomAlert = ({ message, type = 'success', onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  return (
-    <div className={`fixed top-6 right-6 z-50 flex items-center p-4 rounded-xl shadow-2xl transition-all duration-300 transform translate-y-0 border-l-4 max-w-sm ${
-      type === 'success' 
-        ? 'bg-emerald-50 border-emerald-500 text-emerald-800' 
-        : 'bg-amber-50 border-amber-500 text-amber-800'
-    }`}>
-      <div className="mr-3">
-        {type === 'success' ? (
-          <div className="bg-emerald-500 text-white rounded-full p-1 animate-pulse">
-            <Check size={16} />
-          </div>
-        ) : (
-          <div className="bg-amber-500 text-white rounded-full p-1">
-            <Info size={16} />
-          </div>
-        )}
-      </div>
-      <div className="flex-1 font-medium text-xs md:text-sm">{message}</div>
-      <button onClick={onClose} className="ml-4 text-gray-400 hover:text-gray-600">
-        <X size={16} />
-      </button>
-    </div>
-  );
-};
-
-export default function App() {
-  // === STATES ===
-  const [activeTab, setActiveTab] = useState('home'); // 'home' | 'menu' | 'catering' | 'about' | 'contact'
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [cart, setCart] = useState([]);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [alert, setAlert] = useState(null);
-  
-  // Catering Form State
-  const [cateringForm, setCateringForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    eventDate: '',
-    guestCount: '25-50 guests',
-    eventType: 'Corporate Event',
-    notes: ''
-  });
-  const [cateringSubmitted, setCateringSubmitted] = useState(false);
-
-  // Scroll Ke Atas Setiap Kali Tab Berubah
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setMobileMenuOpen(false);
-  }, [activeTab]);
-
-  // Triger Alert
-  const triggerAlert = (message, type = 'success') => {
-    setAlert({ message, type });
-  };
-
-  // === SISTEM KERANJANG BELANJA ===
-  const addToCart = (item) => {
-    const existing = cart.find(cartItem => cartItem.id === item.id);
-    if (existing) {
-      setCart(cart.map(cartItem => 
-        cartItem.id === item.id 
-          ? { ...cartItem, quantity: cartItem.quantity + 1 } 
-          : cartItem
-      ));
-    } else {
-      setCart([...cart, { ...item, quantity: 1 }]);
-    }
-    triggerAlert(`"${item.name}" has been added to your order list!`);
-  };
-
-  const updateQuantity = (id, change) => {
-    setCart(cart.map(item => {
-      if (item.id === id) {
-        const newQty = item.quantity + change;
-        return newQty > 0 ? { ...item, quantity: newQty } : item;
+    // Masukkan kode React titos_diner.jsx Anda di sini
+    // (Kami menggunakan database menu Anda yang sudah terintegrasi dengan gambar GitHub)
+    const MENU_ITEMS = [
+      {
+        id: 'pancake-stack',
+        name: 'Classic Pancake Stack',
+        category: 'Breakfast',
+        price: 12.99,
+        description: 'Our legendary stack of fluffy, golden buttermilk pancakes served with fresh whipped butter and pure, warm maple syrup.',
+        rating: 4.9,
+        reviews: 124,
+        tag: 'Best Seller',
+        imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_pancakes.jpg',
+        fallbackSrc: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'western-omelette',
+        name: 'Western Omelette',
+        category: 'Omelets',
+        price: 13.49,
+        description: 'Three farm-fresh eggs folded with premium diced ham, green bell peppers, sweet onions, and melted Wisconsin Cheddar.',
+        rating: 4.8,
+        reviews: 96,
+        tag: 'Local Favorite',
+        imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_omelette.jpg',
+        fallbackSrc: 'https://images.unsplash.com/photo-1510629954389-c1e0da47d415?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'titos-burger',
+        name: "Tito’s Classic Bacon Burger",
+        category: 'Burgers',
+        price: 14.99,
+        description: 'Juicy 200g flame-grilled Angus beef patty with Cheddar cheese, crispy applewood smoked bacon, lettuce, tomato, and Tito’s signature special sauce.',
+        rating: 5.0,
+        reviews: 215,
+        tag: 'Signature',
+        imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_bacon_burger.jpg',
+        fallbackSrc: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'club-sandwich',
+        name: 'Classic Club Sandwich',
+        category: 'Sandwiches',
+        price: 13.99,
+        description: 'A toasted triple-decker packed with thin-sliced roasted chicken breast, crispy bacon, Swiss cheese, fresh lettuce, tomato, and creamy mayo.',
+        rating: 4.7,
+        reviews: 142,
+        tag: 'Popular',
+        imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_club_sandwich.jpg',
+        fallbackSrc: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'country-fried-steak',
+        name: 'Country Fried Steak',
+        category: 'Entrées',
+        price: 16.99,
+        description: 'Tender beef steak hand-breaded and golden-fried, smothered in our rich, peppery white country gravy. Served with homestyle mashed potatoes.',
+        rating: 4.9,
+        reviews: 188,
+        tag: 'Legendary',
+        imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_fried_steak.jpg',
+        fallbackSrc: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'belgian-waffle',
+        name: 'Tito’s Belgian Waffle',
+        category: 'Pancakes & Waffles',
+        price: 11.49,
+        description: 'Thick, crispy-on-the-outside, light-on-the-inside Belgian waffle dusted with powdered sugar and crowned with fresh berries.',
+        rating: 4.8,
+        reviews: 82,
+        tag: 'Sweet Treat',
+        imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_belgian_waffle.jpg',
+        fallbackSrc: 'https://images.unsplash.com/photo-1562376502-6f769499c886?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'apple-pie',
+        name: 'Classic Deep Dish Apple Pie',
+        category: 'Desserts',
+        price: 6.99,
+        description: 'Warm, spiced cinnamon-apple pie baked in a flaky homestyle crust. Served with a scoop of premium vanilla bean ice cream.',
+        rating: 4.9,
+        reviews: 156,
+        tag: 'Best Seller',
+        imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_apple_pie.jpg',
+        fallbackSrc: 'https://images.unsplash.com/photo-1519869325930-281384150729?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        id: 'milkshake',
+        name: 'Premium Diner Milkshake',
+        category: 'Beverages',
+        price: 5.99,
+        description: 'Thick, old-fashioned hand-spun milkshake made with premium ice cream, topped with real whipped cream and a maraschino cherry.',
+        rating: 5.0,
+        reviews: 194,
+        tag: 'Must Try',
+        imageSrc: 'https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/menu_milkshake.jpg',
+        fallbackSrc: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=800&q=80'
       }
-      return item;
-    }).filter(item => item.quantity > 0));
-  };
+    ];
 
-  const removeFromCart = (id, name) => {
-    setCart(cart.filter(item => item.id !== id));
-    triggerAlert(`"${name}" has been removed.`, 'info');
-  };
+    const SmartImage = ({ src, fallback, alt, className }) => {
+      const [imgSrc, setImgSrc] = React.useState(src);
+      const [hasError, setHasError] = React.useState(false);
+      const handleError = () => {
+        if (!hasError) {
+          setImgSrc(fallback);
+          setHasError(true);
+        }
+      };
+      return <img src={imgSrc} onError={handleError} alt={alt} className={className} loading="lazy" />;
+    };
 
-  const getCartTotal = () => {
-    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  const getCartCount = () => {
-    return cart.reduce((total, item) => total + item.quantity, 0);
-  };
-
-  const handleCheckout = (e) => {
-    e.preventDefault();
-    triggerAlert("Your order has been sent to Tito's Kitchen! We will call you shortly.");
-    setCart([]);
-    setCartOpen(false);
-  };
-
-  // === SISTEM LAYANAN KATERING ===
-  const handleCateringChange = (e) => {
-    const { name, value } = e.target;
-    setCateringForm({ ...cateringForm, [name]: value });
-  };
-
-  const handleCateringSubmit = (e) => {
-    e.preventDefault();
-    setCateringSubmitted(true);
-    triggerAlert("Your inquiry has been received! We will contact you within 24 hours.");
-  };
-
-  return (
-    <div className="min-h-screen bg-[#FDFBF7] text-stone-800 font-sans antialiased flex flex-col selection:bg-[#C1272D] selection:text-white pb-16 lg:pb-0">
-      
-      {/* Toast Alert */}
-      {alert && (
-        <CustomAlert 
-          message={alert.message} 
-          type={alert.type} 
-          onClose={() => setAlert(null)} 
-        />
-      )}
-
-      {/* TOP ANNOUNCEMENT BAR */}
-      <div className="bg-[#C1272D] text-white text-xs md:text-sm py-2 px-4 text-center font-medium flex items-center justify-center gap-4 transition-all duration-300">
-        <span className="flex items-center gap-1">
-          <Clock size={14} /> Open Daily: 6:00 AM - 9:00 PM
-        </span>
-        <span className="hidden md:inline">|</span>
-        <span className="flex items-center gap-1">
-          <MapPin size={14} /> 10511 Fairfax Blvd, Fairfax, VA 22030
-        </span>
-        <span className="hidden lg:inline">|</span>
-        <span className="hidden lg:flex items-center gap-1">
-          <Phone size={14} /> (703) 273-1570
-        </span>
-      </div>
-
-      {/* MAIN HEADER / NAVIGATION */}
-      <header className="sticky top-0 bg-[#FDFBF7]/95 backdrop-blur-md shadow-sm z-40 border-b border-stone-200 transition-all duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 md:h-24 flex items-center justify-between">
-          
-          {/* Logo Brand */}
-          <button 
-            onClick={() => setActiveTab('home')}
-            className="flex items-center gap-2 group text-left"
-          >
-            <div className="bg-[#C1272D] hover:bg-[#A31F24] p-2 rounded-xl text-white font-serif font-extrabold text-xl tracking-tight transition-all duration-300 rotate-[-2deg] shadow-md group-hover:rotate-0">
-              <span className="block text-[11px] leading-tight uppercase tracking-widest text-yellow-300 font-sans">Tito's</span>
-              <span className="block text-lg leading-none font-black">DINER</span>
-            </div>
-            <div className="hidden sm:block">
-              <span className="text-stone-900 font-serif font-black text-lg tracking-wide uppercase block">TITO'S DINER</span>
-              <span className="text-[11px] tracking-widest text-[#C1272D] font-bold block uppercase">Est. 1978 — Fairfax, VA</span>
-            </div>
-          </button>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-8 font-semibold text-[15px] text-stone-600">
-            {[
-              { id: 'home', label: 'HOME' },
-              { id: 'menu', label: 'OUR MENU' },
-              { id: 'catering', label: 'CATERING' },
-              { id: 'about', label: 'OUR STORY' },
-              { id: 'contact', label: 'CONTACT US' }
-            ].map((link) => (
-              <button
-                key={link.id}
-                onClick={() => setActiveTab(link.id)}
-                className={`transition-colors duration-200 relative py-2 ${
-                  activeTab === link.id 
-                    ? 'text-[#C1272D] font-extrabold' 
-                    : 'hover:text-stone-900'
-                }`}
-              >
-                {link.label}
-                {activeTab === link.id && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C1272D] rounded-full" />
-                )}
-              </button>
-            ))}
-          </nav>
-
-          {/* Action Buttons & Cart Trigger */}
-          <div className="flex items-center gap-3">
-            {/* Cart Button */}
-            <button 
-              onClick={() => setCartOpen(true)}
-              className="relative p-3 bg-stone-100 hover:bg-stone-200 rounded-full text-stone-800 transition-all duration-300 focus:outline-none"
-              aria-label="Open Shopping Cart"
-            >
-              <ShoppingBag size={20} />
-              {getCartCount() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#C1272D] text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-bounce">
-                  {getCartCount()}
-                </span>
-              )}
-            </button>
-
-            {/* Main Action Call */}
-            <button 
-              onClick={() => {
-                setActiveTab('menu');
-                triggerAlert("Welcome to our online menu! Feel free to add dishes to your cart.");
-              }}
-              className="hidden sm:inline-flex items-center gap-2 bg-[#C1272D] hover:bg-[#A31F24] text-white font-bold text-sm tracking-wide uppercase px-5 py-3 rounded-xl shadow-lg shadow-[#C1272D]/20 hover:shadow-xl transition-all duration-300"
-            >
-              ORDER ONLINE
-            </button>
-
-            {/* Mobile Hamburger Menu */}
-            <button 
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-stone-800 hover:bg-stone-100 rounded-xl transition-all"
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+    const CustomAlert = ({ message, type = 'success', onClose }) => {
+      React.useEffect(() => {
+        const timer = setTimeout(() => { onClose(); }, 4000);
+        return () => clearTimeout(timer);
+      }, [onClose]);
+      return (
+        <div className={`fixed top-6 right-6 z-50 flex items-center p-4 rounded-xl shadow-2xl border-l-4 max-w-sm ${type === 'success' ? 'bg-emerald-50 border-emerald-500 text-emerald-800' : 'bg-amber-50 border-amber-500 text-amber-800'}`}>
+          <div className="mr-3">
+            {type === 'success' ? (
+              <div className="bg-emerald-500 text-white rounded-full p-1"><Check size={16} /></div>
+            ) : (
+              <div className="bg-amber-500 text-white rounded-full p-1"><Info size={16} /></div>
+            )}
           </div>
-
+          <div className="flex-1 font-medium text-xs md:text-sm">{message}</div>
+          <button onClick={onClose} className="ml-4 text-gray-400 hover:text-gray-600"><X size={16} /></button>
         </div>
+      );
+    };
 
-        {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#FDFBF7] border-b border-stone-200 px-4 py-6 space-y-3 transition-all duration-300">
-            {[
-              { id: 'home', label: 'Home' },
-              { id: 'menu', label: 'Our Menu' },
-              { id: 'catering', label: 'Catering Events' },
-              { id: 'about', label: 'Our Story' },
-              { id: 'contact', label: 'Location & Contact' }
-            ].map((link) => (
-              <button
-                key={link.id}
-                onClick={() => setActiveTab(link.id)}
-                className={`w-full text-left font-bold py-3 px-4 rounded-xl transition-all ${
-                  activeTab === link.id 
-                    ? 'bg-[#C1272D] text-white shadow-md' 
-                    : 'text-stone-700 hover:bg-stone-100'
-                }`}
-              >
-                {link.label}
-              </button>
-            ))}
-            <div className="pt-4 border-t border-stone-200 flex flex-col gap-3">
-              <a 
-                href="tel:7032731570" 
-                className="flex items-center justify-center gap-2 bg-stone-100 text-stone-800 font-bold py-3 rounded-xl hover:bg-stone-200 transition-all text-sm"
-              >
-                <Phone size={16} /> CALL (703) 273-1570
-              </a>
-              <button 
-                onClick={() => {
-                  setActiveTab('menu');
-                  setMobileMenuOpen(false);
-                }}
-                className="flex items-center justify-center gap-2 bg-[#C1272D] text-white font-bold py-3 rounded-xl hover:bg-[#A31F24] transition-all text-sm shadow-md"
-              >
-                START ONLINE ORDER
-              </button>
-            </div>
+    function App() {
+      const [activeTab, setActiveTab] = React.useState('home');
+      const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+      const [cart, setCart] = React.useState([]);
+      const [cartOpen, setCartOpen] = React.useState(false);
+      const [selectedCategory, setSelectedCategory] = React.useState('All');
+      const [alert, setAlert] = React.useState(null);
+      const [cateringForm, setCateringForm] = React.useState({ name: '', email: '', phone: '', eventDate: '', guestCount: '25-50 guests', eventType: 'Corporate Event', notes: '' });
+      const [cateringSubmitted, setCateringSubmitted] = React.useState(false);
+
+      React.useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setMobileMenuOpen(false);
+      }, [activeTab]);
+
+      const triggerAlert = (message, type = 'success') => { setAlert({ message, type }); };
+
+      const addToCart = (item) => {
+        const existing = cart.find(cartItem => cartItem.id === item.id);
+        if (existing) {
+          setCart(cart.map(cartItem => cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem));
+        } else {
+          setCart([...cart, { ...item, quantity: 1 }]);
+        }
+        triggerAlert(`"${item.name}" has been added to your order list!`);
+      };
+
+      const updateQuantity = (id, change) => {
+        setCart(cart.map(item => {
+          if (item.id === id) {
+            const newQty = item.quantity + change;
+            return newQty > 0 ? { ...item, quantity: newQty } : item;
+          }
+          return item;
+        }).filter(item => item.quantity > 0));
+      };
+
+      const removeFromCart = (id, name) => {
+        setCart(cart.filter(item => item.id !== id));
+        triggerAlert(`"${name}" has been removed.`, 'info');
+      };
+
+      const getCartTotal = () => cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+      const getCartCount = () => cart.reduce((total, item) => total + item.quantity, 0);
+
+      const handleCheckout = (e) => {
+        e.preventDefault();
+        triggerAlert("Your order has been sent to Tito's Kitchen! We will call you shortly.");
+        setCart([]);
+        setCartOpen(false);
+      };
+
+      const handleCateringChange = (e) => {
+        const { name, value } = e.target;
+        setCateringForm({ ...cateringForm, [name]: value });
+      };
+
+      const handleCateringSubmit = (e) => {
+        e.preventDefault();
+        setCateringSubmitted(true);
+        triggerAlert("Your inquiry has been received! We will contact you within 24 hours.");
+      };
+
+      return (
+        <div className="min-h-screen bg-[#FDFBF7] text-stone-800 font-sans antialiased flex flex-col selection:bg-[#C1272D] selection:text-white pb-16 lg:pb-0">
+          {alert && <CustomAlert message={alert.message} type={alert.type} onClose={() => setAlert(null)} />}
+          
+          <div className="bg-[#C1272D] text-white text-xs md:text-sm py-2 px-4 text-center font-medium flex items-center justify-center gap-4">
+            <span className="flex items-center gap-1"><Clock size={14} /> Open Daily: 6:00 AM - 9:00 PM</span>
+            <span className="hidden md:inline">|</span>
+            <span className="flex items-center gap-1"><MapPin size={14} /> 10511 Fairfax Blvd, Fairfax, VA 22030</span>
+            <span className="hidden lg:inline">|</span>
+            <span className="hidden lg:flex items-center gap-1"><Phone size={14} /> (703) 273-1570</span>
           </div>
-        )}
-      </header>
 
-      {/* MAIN CONTENT PORTAL */}
-      <main className="flex-1">
-
-        {/* ==================================== */}
-        {/* TAB 1: HOME PAGE                     */}
-        {/* ==================================== */}
-        {activeTab === 'home' && (
-          <div>
-            {/* HERO SECTION */}
-            <section className="relative bg-[#FAF6F0] overflow-hidden py-16 lg:py-24 border-b border-stone-200">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                
-                {/* Left Text Grid */}
-                <div className="lg:col-span-5 text-center lg:text-left space-y-6">
-                  <div className="inline-flex items-center gap-2 bg-[#C1272D]/10 text-[#C1272D] px-4 py-2 rounded-full font-bold text-xs md:text-sm tracking-wide uppercase">
-                    <span className="w-2 h-2 rounded-full bg-[#C1272D] animate-ping" />
-                    SERVING COMFORT SINCE 1978
-                  </div>
-                  
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-black text-stone-900 leading-tight">
-                    Fairfax’s <br />
-                    <span className="text-[#C1272D] relative inline-block">
-                      Favorite Diner
-                      <span className="absolute bottom-1 left-0 w-full h-2 bg-yellow-300 -z-10 opacity-70" />
-                    </span>
-                  </h1>
-                  
-                  <p className="text-base sm:text-lg text-stone-600 font-medium leading-relaxed max-w-lg mx-auto lg:mx-0">
-                    Savor the comfort of fluffy all-day breakfasts, legendary half-pound burgers, and warm homestyle desserts. Made with love and family heritage.
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                    <button 
-                      onClick={() => setActiveTab('menu')}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#C1272D] hover:bg-[#A31F24] text-white font-bold px-8 py-4 rounded-xl shadow-xl shadow-[#C1272D]/20 hover:shadow-2xl hover:scale-[1.02] transition-all text-base uppercase"
-                    >
-                      View Menu <Utensils size={18} />
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setActiveTab('menu');
-                        triggerAlert("Click the '+' button next to any dish to add it to your cart!");
-                      }}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-stone-50 border-2 border-stone-200 text-stone-800 font-bold px-8 py-4 rounded-xl shadow-sm hover:shadow transition-all text-base uppercase"
-                    >
-                      Order Online <ShoppingBag size={18} />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-center lg:justify-start gap-6 pt-4 text-stone-500 text-xs sm:text-sm font-semibold">
-                    <div className="flex items-center gap-1.5">
-                      <Star size={16} className="text-yellow-500 fill-yellow-500" />
-                      <span>4.9+ Google Rating</span>
-                    </div>
-                    <span>•</span>
-                    <div>Fresh Ingredients</div>
-                    <span>•</span>
-                    <div>All-Day Breakfast</div>
-                  </div>
-                </div>
-
-                {/* Right Image Grid */}
-                <div className="lg:col-span-7 relative">
-                  <div className="absolute -top-12 -left-12 w-24 h-24 bg-yellow-400 rounded-full opacity-20 blur-xl" />
-                  <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-[#C1272D] rounded-full opacity-10 blur-2xl" />
-                  
-                  {/* Outer Main Container */}
-                  <div className="bg-white p-4 rounded-2xl md:rounded-[32px] shadow-2xl border border-stone-200 relative overflow-hidden group">
-                    <div className="aspect-video w-full rounded-xl md:rounded-2xl overflow-hidden relative bg-[#F9F7F2]">
-                      <SmartImage 
-                        src="https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/hero_pancakes.jpg"
-                        fallback="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=1200&q=80"
-                        alt="Tito's Pancake Stack Hero Showcase"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      />
-                      {/* Badge Promo */}
-                      <div className="absolute top-4 right-4 bg-[#C1272D] text-white font-serif font-black px-4 py-3 rounded-xl shadow-lg transform rotate-6 hover:rotate-0 transition-transform">
-                        <span className="block text-[10px] uppercase font-sans tracking-widest text-yellow-300">SINCE</span>
-                        <span className="text-lg">1978</span>
-                      </div>
-                    </div>
-                    {/* Caption Over Hero Food */}
-                    <div className="p-4 md:p-6 bg-[#FDFBF7] mt-4 rounded-xl border border-stone-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div>
-                        <h3 className="font-serif font-bold text-lg md:text-xl text-stone-900">Classic Pancake Stack</h3>
-                        <p className="text-stone-500 text-sm">Light and fluffy scratch-made buttermilk pancakes served with warm maple syrup.</p>
-                      </div>
-                      <div className="flex items-center justify-between md:justify-end gap-4 shrink-0">
-                        <span className="text-[#C1272D] font-black text-2xl font-serif">$12.99</span>
-                        <button 
-                          onClick={() => addToCart(MENU_ITEMS[0])}
-                          className="bg-[#C1272D] hover:bg-[#A31F24] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-md flex items-center gap-1.5"
-                        >
-                          <Plus size={16} /> Order
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
+          <header className="sticky top-0 bg-[#FDFBF7]/95 backdrop-blur-md shadow-sm z-40 border-b border-stone-200 h-20 md:h-24 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+            <button onClick={() => setActiveTab('home')} className="flex items-center gap-2 group text-left">
+              <div className="bg-[#C1272D] hover:bg-[#A31F24] p-2 rounded-xl text-white font-serif font-extrabold text-xl rotate-[-2deg] shadow-md group-hover:rotate-0 transition-all">
+                <span className="block text-[11px] leading-tight uppercase tracking-widest text-yellow-300 font-sans">Tito's</span>
+                <span className="block text-lg leading-none font-black">DINER</span>
               </div>
-            </section>
-
-            {/* SIGNATURE FAVORITES SECTION */}
-            <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center space-y-3 mb-16">
-                <span className="text-[#C1272D] font-extrabold text-xs md:text-sm tracking-widest uppercase">FAVORITES IN FAIRFAX</span>
-                <h2 className="text-3xl md:text-5xl font-serif font-black text-stone-900">Our Signature Comforts</h2>
-                <p className="text-stone-500 text-sm md:text-base max-w-lg mx-auto">We do not cut corners. Every recipe has been tested and perfected over four decades to ensure mouthfuls of joy.</p>
-                <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
+              <div className="hidden sm:block">
+                <span className="text-stone-900 font-serif font-black text-lg tracking-wide uppercase block">TITO'S DINER</span>
+                <span className="text-[11px] tracking-widest text-[#C1272D] font-bold block uppercase">Est. 1978 — Fairfax, VA</span>
               </div>
+            </button>
 
-              {/* Grid Cards (4 Favorites) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {MENU_ITEMS.slice(0, 4).map((item) => (
-                  <div 
-                    key={item.id}
-                    className="bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-stone-300 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
-                  >
-                    <div className="relative aspect-[4/3] w-full bg-[#FAF7F2] overflow-hidden border-b border-stone-100">
-                      <SmartImage 
-                        src={item.imageSrc}
-                        fallback={item.fallbackSrc}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                      {item.tag && (
-                        <span className="absolute top-3 left-3 bg-[#C1272D] text-white text-[11px] font-extrabold tracking-widest uppercase px-2.5 py-1 rounded-full shadow">
-                          {item.tag}
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-5 flex-1 flex flex-col justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} size={14} className="text-yellow-500 fill-yellow-500" />
-                          ))}
-                          <span className="text-xs text-stone-400 font-bold ml-1">({item.reviews})</span>
-                        </div>
-                        <h3 className="font-serif font-bold text-lg text-stone-900 group-hover:text-[#C1272D] transition-colors">{item.name}</h3>
-                        <p className="text-stone-500 text-xs leading-relaxed line-clamp-2">{item.description}</p>
-                      </div>
-                      
-                      <div className="pt-4 mt-4 border-t border-stone-100 flex items-center justify-between">
-                        <span className="text-[#C1272D] font-black text-lg">${item.price}</span>
-                        <button 
-                          onClick={() => addToCart(item)}
-                          className="bg-[#C1272D]/10 hover:bg-[#C1272D] text-[#C1272D] hover:text-white px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-300 flex items-center gap-1"
-                        >
-                          <Plus size={14} /> Order
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* View Full Menu Callout */}
-              <div className="text-center mt-12">
-                <button 
-                  onClick={() => setActiveTab('menu')}
-                  className="inline-flex items-center gap-2 bg-stone-950 hover:bg-stone-800 text-white font-bold text-sm tracking-wider uppercase px-8 py-4 rounded-xl shadow-lg transition-all"
-                >
-                  Explore Full Menu <ArrowRight size={16} />
+            <nav className="hidden lg:flex items-center space-x-8 font-semibold text-[15px] text-stone-600">
+              {[{ id: 'home', label: 'HOME' }, { id: 'menu', label: 'OUR MENU' }, { id: 'catering', label: 'CATERING' }, { id: 'about', label: 'OUR STORY' }, { id: 'contact', label: 'CONTACT US' }].map((link) => (
+                <button key={link.id} onClick={() => setActiveTab(link.id)} className={`transition-colors duration-200 relative py-2 ${activeTab === link.id ? 'text-[#C1272D] font-extrabold' : 'hover:text-stone-900'}`}>
+                  {link.label}
+                  {activeTab === link.id && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C1272D] rounded-full" />}
                 </button>
-              </div>
-            </section>
+              ))}
+            </nav>
 
-            {/* WHY TITO'S DINER */}
-            <section className="bg-stone-100 py-20 border-t border-b border-stone-200">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center space-y-3 mb-16">
-                  <span className="text-[#C1272D] font-extrabold text-xs md:text-sm tracking-widest uppercase">WHY DINE WITH US?</span>
-                  <h2 className="text-3xl md:text-4xl font-serif font-black text-stone-900">What Makes Tito’s Special?</h2>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setCartOpen(true)} className="relative p-3 bg-stone-100 hover:bg-stone-200 rounded-full text-stone-800 transition-all duration-300">
+                <ShoppingBag size={20} />
+                {getCartCount() > 0 && <span className="absolute -top-1 -right-1 bg-[#C1272D] text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-bounce">{getCartCount()}</span>}
+              </button>
+              <button onClick={() => { setActiveTab('menu'); triggerAlert("Welcome to our online menu! Feel free to add dishes."); }} className="hidden sm:inline-flex items-center gap-2 bg-[#C1272D] hover:bg-[#A31F24] text-white font-bold text-sm tracking-wide uppercase px-5 py-3 rounded-xl shadow-lg transition-all">ORDER ONLINE</button>
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden p-2 text-stone-800 hover:bg-stone-100 rounded-xl transition-all">{mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
+            </div>
+          </header>
+
+          {mobileMenuOpen && (
+            <div className="lg:hidden bg-[#FDFBF7] border-b border-stone-200 px-4 py-6 space-y-3">
+              {[{ id: 'home', label: 'Home' }, { id: 'menu', label: 'Our Menu' }, { id: 'catering', label: 'Catering Events' }, { id: 'about', label: 'Our Story' }, { id: 'contact', label: 'Location & Contact' }].map((link) => (
+                <button key={link.id} onClick={() => setActiveTab(link.id)} className={`w-full text-left font-bold py-3 px-4 rounded-xl ${activeTab === link.id ? 'bg-[#C1272D] text-white shadow-md' : 'text-stone-700 hover:bg-stone-100'}`}>{link.label}</button>
+              ))}
+              <div className="pt-4 border-t border-stone-200 flex flex-col gap-3">
+                <a href="tel:7032731570" className="flex items-center justify-center gap-2 bg-stone-100 text-stone-800 font-bold py-3 rounded-xl text-sm"><Phone size={16} /> CALL (703) 273-1570</a>
+                <button onClick={() => { setActiveTab('menu'); setMobileMenuOpen(false); }} className="flex items-center justify-center gap-2 bg-[#C1272D] text-white font-bold py-3 rounded-xl text-sm shadow-md">START ONLINE ORDER</button>
+              </div>
+            </div>
+          )}
+
+          <main className="flex-1">
+            {activeTab === 'home' && (
+              <div>
+                <section className="relative bg-[#FAF6F0] overflow-hidden py-16 lg:py-24 border-b border-stone-200">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    <div className="lg:col-span-5 text-center lg:text-left space-y-6">
+                      <div className="inline-flex items-center gap-2 bg-[#C1272D]/10 text-[#C1272D] px-4 py-2 rounded-full font-bold text-xs tracking-wide uppercase">
+                        <span className="w-2 h-2 rounded-full bg-[#C1272D] animate-ping" /> SERVING COMFORT SINCE 1978
+                      </div>
+                      <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-black text-stone-900 leading-tight">Fairfax’s <br /><span className="text-[#C1272D] relative inline-block">Favorite Diner<span className="absolute bottom-1 left-0 w-full h-2 bg-yellow-300 -z-10 opacity-70" /></span></h1>
+                      <p className="text-base sm:text-lg text-stone-600 font-medium leading-relaxed max-w-lg mx-auto lg:mx-0">Savor the comfort of fluffy all-day breakfasts, legendary half-pound burgers, and warm homestyle desserts. Made with love and family heritage.</p>
+                      <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                        <button onClick={() => setActiveTab('menu')} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#C1272D] text-white font-bold px-8 py-4 rounded-xl shadow-xl hover:scale-[1.02] transition-all text-base uppercase">View Menu <Utensils size={18} /></button>
+                        <button onClick={() => { setActiveTab('menu'); triggerAlert("Click '+' on any dish to add to order!"); }} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border-2 border-stone-200 text-stone-800 font-bold px-8 py-4 rounded-xl shadow-sm transition-all text-base uppercase">Order Online <ShoppingBag size={18} /></button>
+                      </div>
+                      <div className="flex items-center justify-center lg:justify-start gap-6 pt-4 text-stone-500 text-xs sm:text-sm font-semibold">
+                        <div className="flex items-center gap-1.5"><Star size={16} className="text-yellow-500 fill-yellow-500" /><span>4.9+ Google Rating</span></div>
+                        <span>•</span><div>Fresh Ingredients</div><span>•</span><div>All-Day Breakfast</div>
+                      </div>
+                    </div>
+                    <div className="lg:col-span-7 relative">
+                      <div className="bg-white p-4 rounded-2xl md:rounded-[32px] shadow-2xl border border-stone-200 relative overflow-hidden group">
+                        <div className="aspect-video w-full rounded-xl md:rounded-2xl overflow-hidden relative bg-[#F9F7F2]">
+                          <SmartImage src="https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/hero_pancakes.jpg" fallback="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=1200&q=80" alt="Pancake Stack" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                          <div className="absolute top-4 right-4 bg-[#C1272D] text-white font-serif font-black px-4 py-3 rounded-xl shadow-lg transform rotate-6">
+                            <span className="block text-[10px] uppercase tracking-widest text-yellow-300 font-sans">SINCE</span><span className="text-lg">1978</span>
+                          </div>
+                        </div>
+                        <div className="p-4 md:p-6 bg-[#FDFBF7] mt-4 rounded-xl border border-stone-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div>
+                            <h3 className="font-serif font-bold text-lg md:text-xl text-stone-900">Classic Pancake Stack</h3>
+                            <p className="text-stone-500 text-sm">Light and fluffy scratch-made buttermilk pancakes served with warm maple syrup.</p>
+                          </div>
+                          <div className="flex items-center justify-between md:justify-end gap-4 shrink-0">
+                            <span className="text-[#C1272D] font-black text-2xl font-serif">$12.99</span>
+                            <button onClick={() => addToCart(MENU_ITEMS[0])} className="bg-[#C1272D] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-md flex items-center gap-1.5"><Plus size={16} /> Order</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="text-center space-y-3 mb-16">
+                    <span className="text-[#C1272D] font-extrabold text-xs md:text-sm tracking-widest uppercase">FAVORITES IN FAIRFAX</span>
+                    <h2 className="text-3xl md:text-5xl font-serif font-black text-stone-900">Our Signature Comforts</h2>
+                    <p className="text-stone-500 text-sm md:text-base max-w-lg mx-auto">We do not cut corners. Every recipe has been tested and perfected over four decades to ensure mouthfuls of joy.</p>
+                    <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {MENU_ITEMS.slice(0, 4).map((item) => (
+                      <div key={item.id} className="bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-stone-300 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+                        <div className="relative aspect-[4/3] w-full bg-[#FAF7F2] overflow-hidden border-b border-stone-100">
+                          <SmartImage src={item.imageSrc} fallback={item.fallbackSrc} alt={item.name} className="w-full h-full object-cover" />
+                          {item.tag && <span className="absolute top-3 left-3 bg-[#C1272D] text-white text-[11px] font-extrabold tracking-widest uppercase px-2.5 py-1 rounded-full shadow">{item.tag}</span>}
+                        </div>
+                        <div className="p-5 flex-1 flex flex-col justify-between">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-yellow-500 fill-yellow-500" />)}
+                              <span className="text-xs text-stone-400 font-bold ml-1">({item.reviews})</span>
+                            </div>
+                            <h3 className="font-serif font-bold text-lg text-stone-900">{item.name}</h3>
+                            <p className="text-stone-500 text-xs leading-relaxed line-clamp-2">{item.description}</p>
+                          </div>
+                          <div className="pt-4 mt-4 border-t border-stone-100 flex items-center justify-between">
+                            <span className="text-[#C1272D] font-black text-lg">${item.price}</span>
+                            <button onClick={() => addToCart(item)} className="bg-[#C1272D]/10 hover:bg-[#C1272D] text-[#C1272D] hover:text-white px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-300 flex items-center gap-1"><Plus size={14} /> Order</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-center mt-12">
+                    <button onClick={() => setActiveTab('menu')} className="inline-flex items-center gap-2 bg-stone-950 text-white font-bold text-sm tracking-wider uppercase px-8 py-4 rounded-xl shadow-lg">Explore Full Menu <ArrowRight size={16} /></button>
+                  </div>
+                </section>
+
+                <section className="bg-stone-100 py-20 border-t border-b border-stone-200">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center space-y-3 mb-16">
+                      <span className="text-[#C1272D] font-extrabold text-xs tracking-widest uppercase">WHY DINE WITH US?</span>
+                      <h2 className="text-3xl md:text-4xl font-serif font-black text-stone-900">What Makes Tito’s Special?</h2>
+                      <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                      {[{ icon: <Coffee size={28} className="text-[#C1272D]" />, title: "Breakfast All Day", desc: "Fluffy pancakes, savory omelets, and sweet waffles cooked to order morning, noon, or night." },
+                        { icon: <Users size={28} className="text-[#C1272D]" />, title: "Family Friendly", desc: "A warm, nostalgia-rich American diner atmosphere that welcomes visitors of all generations." },
+                        { icon: <Award size={28} className="text-[#C1272D]" />, title: "Local Heritage", desc: "Proudly serving and growing with the Fairfax, VA community for over 45 years." },
+                        { icon: <Heart size={28} className="text-[#C1272D]" />, title: "Quality Ingredients", desc: "Premium Angus beef, farm-fresh eggs, local produce, and scratch-made secret sauces." }
+                      ].map((benefit, idx) => (
+                        <div key={idx} className="bg-[#FDFBF7] p-8 rounded-2xl border border-stone-200/60 shadow-sm text-center space-y-4">
+                          <div className="w-14 h-14 bg-[#C1272D]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">{benefit.icon}</div>
+                          <h3 className="font-serif font-bold text-xl text-stone-900">{benefit.title}</h3>
+                          <p className="text-stone-500 text-sm leading-relaxed">{benefit.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+
+                <section className="grid grid-cols-1 lg:grid-cols-2 border-b border-stone-200">
+                  <div className="bg-[#FAF6F0] p-8 sm:p-16 lg:p-24 flex flex-col justify-center space-y-6 border-b lg:border-b-0 lg:border-r border-stone-200">
+                    <span className="text-[#C1272D] font-extrabold text-sm tracking-wider uppercase">SCRATCH MADE TRADITION</span>
+                    <h3 className="text-3xl sm:text-4xl font-serif font-black text-stone-900 leading-tight">Breakfast Done Right, Anytime You Want It</h3>
+                    <p className="text-stone-600 leading-relaxed text-sm sm:text-base">From our fluffy pancake stacks to golden griddle specials and custom farm omelets, everything is cooked fresh to order. We believe that good breakfast has no curfew.</p>
+                    <div className="pt-4">
+                      <button onClick={() => { setActiveTab('menu'); setSelectedCategory('Breakfast'); }} className="inline-flex items-center gap-2 bg-[#C1272D] text-white font-bold px-6 py-3.5 rounded-xl shadow-lg text-sm uppercase">Explore Breakfast <ChevronRight size={16} /></button>
+                    </div>
+                  </div>
+                  <div className="relative bg-stone-900 text-white p-8 sm:p-16 lg:p-24 flex flex-col justify-center space-y-6">
+                    <div className="absolute inset-0 bg-[#C1272D] opacity-10" />
+                    <span className="text-yellow-400 font-extrabold text-sm tracking-wider uppercase relative z-10">TITO'S CATERING</span>
+                    <h3 className="text-3xl sm:text-4xl font-serif font-black text-white leading-tight relative z-10">Bring the Diner Classic to Your Next Gathering</h3>
+                    <p className="text-stone-300 leading-relaxed text-sm sm:text-base relative z-10">Impress your guests with our easy-to-order catering. Perfect for corporate meetings, family reunions, birthday bashes, or neighborhood block parties.</p>
+                    <div className="pt-4 relative z-10 flex flex-wrap gap-4 text-xs font-bold uppercase tracking-wider text-stone-200">
+                      <span className="bg-stone-800/80 px-3.5 py-1.5 rounded-full border border-stone-700">💼 Corporate</span>
+                      <span className="bg-stone-800/80 px-3.5 py-1.5 rounded-full border border-stone-700">🏠 Family Reunions</span>
+                      <span className="bg-stone-800/80 px-3.5 py-1.5 rounded-full border border-stone-700">🎉 Birthdays</span>
+                    </div>
+                    <div className="pt-4 relative z-10">
+                      <button onClick={() => setActiveTab('catering')} className="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-stone-950 font-black px-6 py-3.5 rounded-xl shadow-lg text-sm uppercase">Inquire About Catering <ChevronRight size={16} /></button>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="text-center space-y-3 mb-16">
+                    <span className="text-[#C1272D] font-extrabold text-xs md:text-sm tracking-widest uppercase">GUEST STORIES</span>
+                    <h2 className="text-3xl md:text-4xl font-serif font-black text-stone-900">What Our Guests Say</h2>
+                    <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[{ name: "Jessica M.", city: "Fairfax, VA", text: "Absolutely the best breakfast in Fairfax! The pancakes are incredibly thick and fluffy, and the portions are always huge. The waitstaff treats you like family.", stars: 5 },
+                      { name: "Mark T.", city: "Oakton, VA", text: "Tito's Diner is a local treasure. My family has been coming here for weekend burgers and milkshakes for years. Unmatched quality and old-school charm!", stars: 5 },
+                      { name: "Sarah L.", city: "Vienna, VA", text: "Amazing food, reasonable prices, and that real retro diner vibe. Highly recommend their Western Omelette and deep dish apple pie!", stars: 5 }
+                    ].map((review, idx) => (
+                      <div key={idx} className="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm space-y-4 flex flex-col justify-between">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-1">
+                            {[...Array(review.stars)].map((_, i) => <Star key={i} size={16} className="text-yellow-500 fill-yellow-500" />)}
+                          </div>
+                          <p className="text-stone-600 italic text-sm leading-relaxed">"{review.text}"</p>
+                        </div>
+                        <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
+                          <div>
+                            <h4 className="font-bold text-stone-900 text-sm">{review.name}</h4>
+                            <p className="text-stone-400 text-xs">{review.city}</p>
+                          </div>
+                          <div className="text-xs font-bold text-[#C1272D] bg-[#C1272D]/5 px-2.5 py-1 rounded-md flex items-center gap-1"><Star size={10} className="fill-current" /> Google Review</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="bg-stone-900 text-white overflow-hidden border-t border-stone-800">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    <div className="lg:col-span-5 space-y-6">
+                      <div className="inline-block bg-[#C1272D] text-white px-3.5 py-1.5 rounded-lg text-xs font-bold tracking-widest uppercase">VISIT US</div>
+                      <h3 className="text-3xl sm:text-4xl font-serif font-black text-white">Find Us in Fairfax</h3>
+                      <div className="space-y-4 text-stone-300 text-sm">
+                        <div className="flex items-start gap-3">
+                          <MapPin className="text-[#C1272D] shrink-0 mt-1" size={20} />
+                          <div><strong className="text-white block font-semibold mb-1">Our Address</strong><span>10511 Fairfax Blvd, Fairfax, VA 22030</span></div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Clock className="text-[#C1272D] shrink-0 mt-1" size={20} />
+                          <div><strong className="text-white block font-semibold mb-1">Dine-In Hours</strong><span>Monday – Sunday: 6:00 AM – 9:00 PM<br /><span className="text-[#C1272D] text-xs font-semibold">(Breakfast served all day long)</span></span></div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Phone className="text-[#C1272D] shrink-0 mt-1" size={20} />
+                          <div><strong className="text-white block font-semibold mb-1">Phone Number</strong><a href="tel:7032731570" className="hover:text-white hover:underline">(703) 273-1570</a></div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-4 pt-4">
+                        <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#C1272D] text-white font-bold px-6 py-3.5 rounded-xl shadow-lg text-sm uppercase">Get Directions <ChevronRight size={16} /></a>
+                        <a href="tel:7032731570" className="inline-flex items-center gap-2 bg-stone-800 text-white border border-stone-700 font-bold px-6 py-3.5 rounded-xl text-sm uppercase">Call Restaurant <Phone size={16} /></a>
+                      </div>
+                    </div>
+                    <div className="lg:col-span-7 bg-stone-800 rounded-2xl overflow-hidden border border-stone-700 aspect-video relative group shadow-2xl">
+                      <div className="absolute inset-0 bg-[#E0E0D8]">
+                        <svg className="w-full h-full opacity-65" viewBox="0 0 600 350" xmlns="http://www.w3.org/2000/svg">
+                          <rect width="600" height="350" fill="#EAEADF" />
+                          <line x1="0" y1="80" x2="600" y2="80" stroke="#FFFFFF" strokeWidth="16" />
+                          <line x1="0" y1="80" x2="600" y2="80" stroke="#D3D3C3" strokeWidth="2" />
+                          <line x1="0" y1="260" x2="600" y2="260" stroke="#FFFFFF" strokeWidth="32" />
+                          <line x1="0" y1="260" x2="600" y2="260" stroke="#FFD54F" strokeWidth="4" />
+                          <line x1="150" y1="0" x2="150" y2="350" stroke="#FFFFFF" strokeWidth="20" />
+                          <line x1="420" y1="0" x2="420" y2="350" stroke="#FFFFFF" strokeWidth="24" />
+                          <rect x="20" y="10" width="100" height="50" rx="4" fill="#C5D3C1" />
+                          <rect x="180" y="20" width="200" height="150" rx="8" fill="#C1C9BA" />
+                          <rect x="460" y="20" width="120" height="200" rx="8" fill="#D3D9CC" />
+                          <rect x="20" y="140" width="110" height="90" rx="8" fill="#E1E5DC" />
+                          <rect x="180" y="190" width="220" height="50" rx="4" fill="#C5D3C1" />
+                          <text x="320" y="270" fill="#666666" fontSize="10" fontWeight="bold" transform="rotate(-1 320 270)">FAIRFAX BLVD</text>
+                          <text x="210" y="100" fill="#888888" fontSize="10">Fairfax Shopping Plaza</text>
+                        </svg>
+                        <div className="absolute top-[215px] left-[350px] transform -translate-x-1/2 -translate-y-full flex flex-col items-center">
+                          <div className="bg-[#C1272D] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-xl mb-1 animate-bounce flex items-center gap-1.5 border border-white">
+                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-300 animate-ping" />Tito's Diner (We are here!)
+                          </div>
+                          <div className="w-6 h-6 bg-[#C1272D] rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                            <div className="w-2.5 h-2.5 bg-yellow-300 rounded-full" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {activeTab === 'menu' && (
+              <div className="py-12 md:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center space-y-3 mb-12">
+                  <span className="text-[#C1272D] font-extrabold text-sm tracking-widest uppercase">MADE WITH CRAFT</span>
+                  <h1 className="text-4xl md:text-5xl font-serif font-black text-stone-900">Tito's Diner Menu</h1>
+                  <p className="text-stone-500 max-w-md mx-auto text-sm">Add our classic griddle breakfasts, flame-broiled burgers, and old school pies directly to your online order cart.</p>
                   <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                  {[
-                    {
-                      icon: <Coffee size={28} className="text-[#C1272D]" />,
-                      title: "Breakfast All Day",
-                      desc: "Fluffy pancakes, savory omelets, and sweet waffles cooked to order morning, noon, or night."
-                    },
-                    {
-                      icon: <Users size={28} className="text-[#C1272D]" />,
-                      title: "Family Friendly",
-                      desc: "A warm, nostalgia-rich American diner atmosphere that welcomes visitors of all generations."
-                    },
-                    {
-                      icon: <Award size={28} className="text-[#C1272D]" />,
-                      title: "Local Heritage",
-                      desc: "Proudly serving and growing with the Fairfax, VA community for over 45 years."
-                    },
-                    {
-                      icon: <Heart size={28} className="text-[#C1272D]" />,
-                      title: "Quality Ingredients",
-                      desc: "Premium Angus beef, farm-fresh eggs, local produce, and scratch-made secret sauces."
-                    }
-                  ].map((benefit, idx) => (
-                    <div key={idx} className="bg-[#FDFBF7] p-8 rounded-2xl border border-stone-200/60 shadow-sm text-center space-y-4 hover:shadow-md transition-all">
-                      <div className="w-14 h-14 bg-[#C1272D]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        {benefit.icon}
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-12 max-w-3xl mx-auto">
+                  {['All', 'Breakfast', 'Pancakes & Waffles', 'Omelets', 'Burgers', 'Sandwiches', 'Entrées', 'Desserts', 'Beverages'].map((category) => (
+                    <button key={category} onClick={() => setSelectedCategory(category)} className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${selectedCategory === category ? 'bg-[#C1272D] text-white shadow-md scale-[1.05]' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
+                      {category === 'All' ? 'All Items' : category}
+                    </button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {MENU_ITEMS.filter(item => selectedCategory === 'All' || item.category === selectedCategory).map((item) => (
+                    <div key={item.id} className="bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-[#C1272D]/30 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group">
+                      <div className="relative aspect-[4/3] bg-[#FAF7F2] overflow-hidden border-b border-stone-100">
+                        <SmartImage src={item.imageSrc} fallback={item.fallbackSrc} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        {item.tag && <span className="absolute top-3.5 left-3.5 bg-[#C1272D] text-white text-[10px] font-extrabold tracking-widest uppercase px-3 py-1.5 rounded-lg shadow-md">{item.tag}</span>}
                       </div>
-                      <h3 className="font-serif font-bold text-xl text-stone-900">{benefit.title}</h3>
-                      <p className="text-stone-500 text-sm leading-relaxed">{benefit.desc}</p>
+                      <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-extrabold text-[#C1272D] bg-[#C1272D]/5 px-2.5 py-1 rounded-full uppercase tracking-wider">{item.category}</span>
+                            <div className="flex items-center gap-1"><Star size={13} className="text-yellow-500 fill-yellow-500" /><span className="text-xs font-bold text-stone-700">{item.rating}</span></div>
+                          </div>
+                          <h3 className="font-serif font-bold text-xl text-stone-900">{item.name}</h3>
+                          <p className="text-stone-500 text-xs md:text-sm leading-relaxed">{item.description}</p>
+                        </div>
+                        <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
+                          <span className="text-[#C1272D] font-black text-2xl font-serif">${item.price}</span>
+                          <button onClick={() => addToCart(item)} className="bg-[#C1272D] text-white px-4.5 py-2.5 rounded-xl font-bold text-xs uppercase shadow-md flex items-center gap-1.5"><Plus size={14} /> Add to Cart</button>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-            </section>
+            )}
 
-            {/* BREAKFAST & CATERING TEASER */}
-            <section className="grid grid-cols-1 lg:grid-cols-2 border-b border-stone-200">
-              
-              {/* Left Side: Breakfast Special */}
-              <div className="bg-[#FAF6F0] p-8 sm:p-16 lg:p-24 flex flex-col justify-center space-y-6 border-b lg:border-b-0 lg:border-r border-stone-200">
-                <span className="text-[#C1272D] font-extrabold text-sm tracking-wider uppercase">SCRATCH MADE TRADITION</span>
-                <h3 className="text-3xl sm:text-4xl font-serif font-black text-stone-900 leading-tight">Breakfast Done Right, Anytime You Want It</h3>
-                <p className="text-stone-600 leading-relaxed text-sm sm:text-base">
-                  From our fluffy pancake stacks to golden griddle specials and custom farm omelets, everything is cooked fresh to order. We believe that good breakfast has no curfew.
-                </p>
-                <div className="pt-4">
-                  <button 
-                    onClick={() => {
-                      setActiveTab('menu');
-                      setSelectedCategory('Breakfast');
-                    }}
-                    className="inline-flex items-center gap-2 bg-[#C1272D] hover:bg-[#A31F24] text-white font-bold px-6 py-3.5 rounded-xl shadow-lg transition-all text-sm uppercase"
-                  >
-                    Explore Breakfast <ChevronRight size={16} />
-                  </button>
+            {activeTab === 'catering' && (
+              <div className="py-12 md:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center space-y-3 mb-16">
+                  <span className="text-[#C1272D] font-extrabold text-sm tracking-widest uppercase">EXPERT SERVICES</span>
+                  <h1 className="text-4xl md:text-5xl font-serif font-black text-stone-900">Tito's Diner Catering</h1>
+                  <p className="text-stone-500 max-w-md mx-auto text-sm">Bring our warm, comforting classic American favorites directly to your guests and events in Fairfax.</p>
+                  <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
                 </div>
-              </div>
-
-              {/* Right Side: Catering Special */}
-              <div className="relative bg-stone-900 text-white p-8 sm:p-16 lg:p-24 flex flex-col justify-center space-y-6">
-                <div className="absolute inset-0 bg-[#C1272D] opacity-10" />
-                <span className="text-yellow-400 font-extrabold text-sm tracking-wider uppercase relative z-10">TITO'S CATERING</span>
-                <h3 className="text-3xl sm:text-4xl font-serif font-black text-white leading-tight relative z-10">Bring the Diner Classic to Your Next Gathering</h3>
-                <p className="text-stone-300 leading-relaxed text-sm sm:text-base relative z-10">
-                  Impress your guests with our easy-to-order catering. Perfect for corporate meetings, family reunions, birthday bashes, or neighborhood block parties.
-                </p>
-                <div className="pt-4 relative z-10 flex flex-wrap gap-4 text-xs font-bold uppercase tracking-wider text-stone-200">
-                  <span className="bg-stone-800/80 px-3.5 py-1.5 rounded-full border border-stone-700">💼 Corporate</span>
-                  <span className="bg-stone-800/80 px-3.5 py-1.5 rounded-full border border-stone-700">🏠 Family Reunions</span>
-                  <span className="bg-stone-800/80 px-3.5 py-1.5 rounded-full border border-stone-700">🎉 Birthdays</span>
-                </div>
-                <div className="pt-4 relative z-10">
-                  <button 
-                    onClick={() => setActiveTab('catering')}
-                    className="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-stone-950 font-black px-6 py-3.5 rounded-xl shadow-lg transition-all text-sm uppercase"
-                  >
-                    Inquire About Catering <ChevronRight size={16} />
-                  </button>
-                </div>
-              </div>
-
-            </section>
-
-            {/* CUSTOMER REVIEWS */}
-            <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center space-y-3 mb-16">
-                <span className="text-[#C1272D] font-extrabold text-xs md:text-sm tracking-widest uppercase">GUEST STORIES</span>
-                <h2 className="text-3xl md:text-4xl font-serif font-black text-stone-900">What Our Guests Say</h2>
-                <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {[
-                  {
-                    name: "Jessica M.",
-                    city: "Fairfax, VA",
-                    text: "Absolutely the best breakfast in Fairfax! The pancakes are incredibly thick and fluffy, and the portions are always huge. The waitstaff treats you like family.",
-                    stars: 5
-                  },
-                  {
-                    name: "Mark T.",
-                    city: "Oakton, VA",
-                    text: "Tito's Diner is a local treasure. My family has been coming here for weekend burgers and milkshakes for years. Unmatched quality and old-school charm!",
-                    stars: 5
-                  },
-                  {
-                    name: "Sarah L.",
-                    city: "Vienna, VA",
-                    text: "Amazing food, reasonable prices, and that real retro diner vibe. Highly recommend their Western Omelette and deep dish apple pie!",
-                    stars: 5
-                  }
-                ].map((review, idx) => (
-                  <div key={idx} className="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm space-y-4 hover:shadow-md transition-all flex flex-col justify-between">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-1">
-                        {[...Array(review.stars)].map((_, i) => (
-                          <Star key={i} size={16} className="text-yellow-500 fill-yellow-500" />
-                        ))}
-                      </div>
-                      <p className="text-stone-600 italic text-sm leading-relaxed">"{review.text}"</p>
-                    </div>
-                    <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
-                      <div>
-                        <h4 className="font-bold text-stone-900 text-sm">{review.name}</h4>
-                        <p className="text-stone-400 text-xs">{review.city}</p>
-                      </div>
-                      <div className="text-xs font-bold text-[#C1272D] bg-[#C1272D]/5 px-2.5 py-1 rounded-md flex items-center gap-1">
-                        <Star size={10} className="fill-current" /> Google Review
-                      </div>
-                    </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                  <div className="lg:col-span-5 space-y-6 bg-stone-100 p-8 rounded-2xl border border-stone-200">
+                    <h3 className="font-serif font-bold text-2xl text-stone-900">Why Choose Tito's?</h3>
+                    <ul className="space-y-4 text-stone-600 text-sm md:text-base">
+                      <li className="flex items-start gap-3"><div className="bg-[#C1272D] text-white p-1 rounded-full mt-0.5"><Check size={14} /></div><div><strong>Authentic Heritage Flavors:</strong> Trusted recipes prepared with same standards since 1978.</div></li>
+                      <li className="flex items-start gap-3"><div className="bg-[#C1272D] text-white p-1 rounded-full mt-0.5"><Check size={14} /></div><div><strong>Generous Homestyle Portions:</strong> Plentiful layouts ensure no guest leaves hungry.</div></li>
+                      <li className="flex items-start gap-3"><div className="bg-[#C1272D] text-white p-1 rounded-full mt-0.5"><Check size={14} /></div><div><strong>Full-Service Catering Setups:</strong> Chafing racks, warming Sternos, and dining ware included.</div></li>
+                    </ul>
                   </div>
-                ))}
-              </div>
-            </section>
-
-            {/* LOCATION & HOURS BANNER */}
-            <section className="bg-stone-900 text-white overflow-hidden border-t border-stone-800">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                
-                {/* Info Text */}
-                <div className="lg:col-span-5 space-y-6">
-                  <div className="inline-block bg-[#C1272D] text-white px-3.5 py-1.5 rounded-lg text-xs font-bold tracking-widest uppercase">
-                    VISIT US
-                  </div>
-                  <h3 className="text-3xl sm:text-4xl font-serif font-black text-white">Find Us in Fairfax</h3>
-                  
-                  <div className="space-y-4 text-stone-300 text-sm md:text-base">
-                    <div className="flex items-start gap-3">
-                      <MapPin className="text-[#C1272D] shrink-0 mt-1" size={20} />
-                      <div>
-                        <strong className="text-white block font-semibold mb-1">Our Address</strong>
-                        <span>10511 Fairfax Blvd, Fairfax, VA 22030</span>
+                  <div className="lg:col-span-7 bg-white p-8 rounded-2xl border border-stone-200 shadow-xl">
+                    {cateringSubmitted ? (
+                      <div className="text-center py-12 space-y-4">
+                        <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">✓</div>
+                        <h3 className="font-serif font-black text-2xl text-stone-900">Thank You, {cateringForm.name}!</h3>
+                        <p className="text-stone-500 text-sm">We have received your catering request. An event consultant from Tito's Diner will contact you within 24 hours.</p>
                       </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <Clock className="text-[#C1272D] shrink-0 mt-1" size={20} />
-                      <div>
-                        <strong className="text-white block font-semibold mb-1">Dine-In Hours</strong>
-                        <span>Monday – Sunday: 6:00 AM – 9:00 PM<br /><span className="text-[#C1272D] text-xs font-semibold">(Breakfast served all day long)</span></span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <Phone className="text-[#C1272D] shrink-0 mt-1" size={20} />
-                      <div>
-                        <strong className="text-white block font-semibold mb-1">Phone Number</strong>
-                        <a href="tel:7032731570" className="hover:text-white hover:underline transition-colors">(703) 273-1570</a>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-4 pt-4">
-                    <a 
-                      href="https://maps.google.com" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-[#C1272D] hover:bg-[#A31F24] text-white font-bold px-6 py-3.5 rounded-xl shadow-lg transition-all text-sm uppercase"
-                    >
-                      Get Directions <ChevronRight size={16} />
-                    </a>
-                    <a 
-                      href="tel:7032731570"
-                      className="inline-flex items-center gap-2 bg-stone-800 hover:bg-stone-700 text-white border border-stone-700 font-bold px-6 py-3.5 rounded-xl transition-all text-sm uppercase"
-                    >
-                      Call Restaurant <Phone size={16} />
-                    </a>
-                  </div>
-                </div>
-
-                {/* Simulated Interactive Map */}
-                <div className="lg:col-span-7 bg-stone-800 rounded-2xl overflow-hidden border border-stone-700 aspect-video relative group shadow-2xl">
-                  <div className="absolute inset-0 bg-[#E0E0D8]">
-                    <svg className="w-full h-full opacity-65" viewBox="0 0 600 350" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="600" height="350" fill="#EAEADF" />
-                      <line x1="0" y1="80" x2="600" y2="80" stroke="#FFFFFF" strokeWidth="16" />
-                      <line x1="0" y1="80" x2="600" y2="80" stroke="#D3D3C3" strokeWidth="2" />
-                      <line x1="0" y1="260" x2="600" y2="260" stroke="#FFFFFF" strokeWidth="32" />
-                      <line x1="0" y1="260" x2="600" y2="260" stroke="#FFD54F" strokeWidth="4" />
-                      <line x1="150" y1="0" x2="150" y2="350" stroke="#FFFFFF" strokeWidth="20" />
-                      <line x1="420" y1="0" x2="420" y2="350" stroke="#FFFFFF" strokeWidth="24" />
-                      <rect x="20" y="10" width="100" height="50" rx="4" fill="#C5D3C1" />
-                      <rect x="180" y="20" width="200" height="150" rx="8" fill="#C1C9BA" />
-                      <rect x="460" y="20" width="120" height="200" rx="8" fill="#D3D9CC" />
-                      <rect x="20" y="140" width="110" height="90" rx="8" fill="#E1E5DC" />
-                      <rect x="180" y="190" width="220" height="50" rx="4" fill="#C5D3C1" />
-                      <text x="320" y="270" fill="#666666" fontSize="10" fontWeight="bold" fontFamily="sans-serif" transform="rotate(-1 320 270)">FAIRFAX BLVD</text>
-                      <text x="210" y="100" fill="#888888" fontSize="10" fontFamily="sans-serif">Fairfax Shopping Plaza</text>
-                      <text x="35" y="190" fill="#888888" fontSize="9" fontFamily="sans-serif">Tito's Parking Space</text>
-                    </svg>
-
-                    <div className="absolute top-[215px] left-[350px] transform -translate-x-1/2 -translate-y-full flex flex-col items-center">
-                      <div className="bg-[#C1272D] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap mb-1 animate-bounce flex items-center gap-1.5 border border-white">
-                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-300 animate-ping" />
-                        Tito's Diner (We are here!)
-                      </div>
-                      <div className="w-6 h-6 bg-[#C1272D] rounded-full flex items-center justify-center border-2 border-white shadow-lg">
-                        <div className="w-2.5 h-2.5 bg-yellow-300 rounded-full" />
-                      </div>
-                      <div className="w-1 h-3 bg-stone-900 shadow-md transform -translate-y-1" />
-                    </div>
-                  </div>
-
-                  <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm p-2 rounded-xl flex flex-col gap-1.5 shadow-xl border border-stone-200">
-                    <button onClick={() => triggerAlert("Zoom In Map (Simulation)")} className="w-8 h-8 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 font-extrabold flex items-center justify-center text-lg transition-colors">+</button>
-                    <button onClick={() => triggerAlert("Zoom Out Map (Simulation)")} className="w-8 h-8 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 font-extrabold flex items-center justify-center text-lg transition-colors">-</button>
-                  </div>
-                </div>
-
-              </div>
-            </section>
-
-            {/* FINAL CONVERSION CALL */}
-            <section className="bg-[#FAF6F0] py-20 text-center border-t border-b border-stone-200">
-              <div className="max-w-4xl mx-auto px-4 space-y-6">
-                <h3 className="text-3xl md:text-5xl font-serif font-black text-stone-900">Hungry Yet?</h3>
-                <p className="text-stone-600 text-base md:text-lg max-w-lg mx-auto">
-                  Bring the family down to our nostalgic booth or order online to enjoy golden comfort food classics right at your table.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                  <a 
-                    href="https://maps.google.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#C1272D] hover:bg-[#A31F24] text-white font-bold px-8 py-4 rounded-xl shadow-xl transition-all uppercase"
-                  >
-                    Get Directions <MapPin size={18} />
-                  </a>
-                  <button 
-                    onClick={() => setActiveTab('menu')}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-stone-900 hover:bg-stone-800 text-white font-bold px-8 py-4 rounded-xl shadow-lg transition-all uppercase"
-                  >
-                    Order Delivery Online <ShoppingBag size={18} />
-                  </button>
-                </div>
-              </div>
-            </section>
-          </div>
-        )}
-
-        {/* ==================================== */}
-        {/* TAB 2: MENU PAGE (INTERACTIVE FILTER) */}
-        {/* ==================================== */}
-        {activeTab === 'menu' && (
-          <div className="py-12 md:py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              
-              {/* Menu Banner Title */}
-              <div className="text-center space-y-3 mb-12">
-                <span className="text-[#C1272D] font-extrabold text-sm tracking-widest uppercase">MADE WITH CRAFT</span>
-                <h1 className="text-4xl md:text-5xl font-serif font-black text-stone-900">Tito's Diner Menu</h1>
-                <p className="text-stone-500 max-w-md mx-auto text-sm">Add our classic griddle breakfasts, flame-broiled burgers, and old school pies directly to your online order cart.</p>
-                <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
-              </div>
-
-              {/* Interactive Category Filter Menu */}
-              <div className="flex flex-wrap items-center justify-center gap-2 mb-12 max-w-3xl mx-auto">
-                {[
-                  'All',
-                  'Breakfast',
-                  'Pancakes & Waffles',
-                  'Omelets',
-                  'Burgers',
-                  'Sandwiches',
-                  'Entrées',
-                  'Desserts',
-                  'Beverages'
-                ].map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`px-4.5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-                      selectedCategory === category
-                        ? 'bg-[#C1272D] text-white shadow-md shadow-[#C1272D]/20 scale-[1.05]'
-                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200 hover:text-stone-900'
-                    }`}
-                  >
-                    {category === 'All' ? 'All Items' : category}
-                  </button>
-                ))}
-              </div>
-
-              {/* Dynamic Food Menu Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {MENU_ITEMS.filter(item => selectedCategory === 'All' || item.category === selectedCategory).map((item) => (
-                  <div 
-                    key={item.id}
-                    className="bg-white rounded-2xl overflow-hidden border border-stone-200/80 hover:border-[#C1272D]/30 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group animate-fade-in"
-                  >
-                    {/* Visual Card Image Block */}
-                    <div className="relative aspect-[4/3] bg-[#FAF7F2] overflow-hidden border-b border-stone-100">
-                      <SmartImage 
-                        src={item.imageSrc}
-                        fallback={item.fallbackSrc}
-                        alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      {item.tag && (
-                        <span className="absolute top-3.5 left-3.5 bg-[#C1272D] text-white text-[10px] font-extrabold tracking-widest uppercase px-3 py-1.5 rounded-lg shadow-md">
-                          {item.tag}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Text Details Block */}
-                    <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-extrabold text-[#C1272D] bg-[#C1272D]/5 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            {item.category}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            <Star size={13} className="text-yellow-500 fill-yellow-500" />
-                            <span className="text-xs font-bold text-stone-700">{item.rating}</span>
-                          </div>
+                    ) : (
+                      <form onSubmit={handleCateringSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div><label className="block text-xs font-bold text-stone-600 uppercase mb-2">Full Name</label><input type="text" name="name" required value={cateringForm.name} onChange={handleCateringChange} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none" /></div>
+                          <div><label className="block text-xs font-bold text-stone-600 uppercase mb-2">Email Address</label><input type="email" name="email" required value={cateringForm.email} onChange={handleCateringChange} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none" /></div>
                         </div>
-
-                        <h3 className="font-serif font-bold text-xl text-stone-900 leading-tight group-hover:text-[#C1272D] transition-colors">
-                          {item.name}
-                        </h3>
-                        <p className="text-stone-500 text-xs md:text-sm leading-relaxed">
-                          {item.description}
-                        </p>
-                      </div>
-
-                      {/* Buy Action Footer */}
-                      <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
-                        <span className="text-[#C1272D] font-black text-2xl font-serif">
-                          ${item.price}
-                        </span>
-                        
-                        <button 
-                          onClick={() => addToCart(item)}
-                          className="bg-[#C1272D] hover:bg-[#A31F24] text-white px-4.5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-1.5"
-                        >
-                          <Plus size={14} /> Add to Cart
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Fallback Empty Filter */}
-              {MENU_ITEMS.filter(item => selectedCategory === 'All' || item.category === selectedCategory).length === 0 && (
-                <div className="text-center py-16 space-y-4 bg-stone-100 rounded-2xl border border-stone-200">
-                  <Utensils size={40} className="text-stone-400 mx-auto" />
-                  <h3 className="font-serif font-bold text-xl text-stone-700">Category Coming Soon</h3>
-                  <p className="text-stone-400 text-sm">We are busy prepping these delicious bites. Please try selecting another menu category!</p>
-                  <button onClick={() => setSelectedCategory('All')} className="bg-[#C1272D] text-white font-bold px-4 py-2 rounded-xl text-xs uppercase">View All Items</button>
-                </div>
-              )}
-
-            </div>
-          </div>
-        )}
-
-        {/* ==================================== */}
-        {/* TAB 3: CATERING SERVICES & FORM     */}
-        {/* ==================================== */}
-        {activeTab === 'catering' && (
-          <div className="py-12 md:py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              
-              {/* Header */}
-              <div className="text-center space-y-3 mb-16">
-                <span className="text-[#C1272D] font-extrabold text-sm tracking-widest uppercase">EXPERT SERVICES</span>
-                <h1 className="text-4xl md:text-5xl font-serif font-black text-stone-900">Tito's Diner Catering</h1>
-                <p className="text-stone-500 max-w-md mx-auto text-sm">Bring our warm, comforting classic American favorites directly to your guests and events in Fairfax.</p>
-                <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
-              </div>
-
-              {/* Event Types Section */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-20">
-                {[
-                  {
-                    title: "Corporate Meetings",
-                    desc: "Punctual breakfast box caterings or delicious lunch buffets tailored to fuel your staff and drive productivity.",
-                    badge: "Business"
-                  },
-                  {
-                    title: "Family Gatherings",
-                    desc: "Bring everyone together with classic homestyle platters. Big portions designed to make sharing feel natural.",
-                    badge: "Social"
-                  },
-                  {
-                    title: "Birthday Celebrations",
-                    desc: "Sweet griddle waffles, mini sliders, hand-spun milkshake setups, and savory appetizers loved by all generations.",
-                    badge: "Party"
-                  },
-                  {
-                    title: "Community Events",
-                    desc: "Hassle-free, professionally packaged buffets with drop-off warming setups ideal for large neighborhood blocks.",
-                    badge: "Community"
-                  }
-                ].map((event, idx) => (
-                  <div key={idx} className="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
-                    <div className="space-y-4">
-                      <span className="bg-stone-100 text-stone-600 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
-                        {event.badge}
-                      </span>
-                      <h3 className="font-serif font-bold text-xl text-stone-900">{event.title}</h3>
-                      <p className="text-stone-500 text-xs md:text-sm leading-relaxed">{event.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Two Column Layout: Info vs Form */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-                
-                {/* Details Pillar Info */}
-                <div className="lg:col-span-5 space-y-6 bg-stone-100 p-8 rounded-2xl border border-stone-200">
-                  <h3 className="font-serif font-bold text-2xl text-stone-900">Why Choose Tito's?</h3>
-                  
-                  <ul className="space-y-4 text-stone-600 text-sm md:text-base">
-                    <li className="flex items-start gap-3">
-                      <div className="bg-[#C1272D] text-white p-1 rounded-full mt-0.5"><Check size={14} /></div>
-                      <div>
-                        <strong>Authentic Heritage Flavors:</strong> Trusted homestyle recipes prepared with the same quality standards since 1978.
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="bg-[#C1272D] text-white p-1 rounded-full mt-0.5"><Check size={14} /></div>
-                      <div>
-                        <strong>Generous Homestyle Portions:</strong> We pride ourselves on plentiful layouts. No guest will leave your venue hungry.
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="bg-[#C1272D] text-white p-1 rounded-full mt-0.5"><Check size={14} /></div>
-                      <div>
-                        <strong>Full-Service Catering Setups:</strong> Professional wire chafing racks, warming Sternos, and disposable dining ware included.
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="bg-[#C1272D] text-white p-1 rounded-full mt-0.5"><Check size={14} /></div>
-                      <div>
-                        <strong>Customizable Menus:</strong> Flexible packages to easily accommodate vegetarian diners or food allergy requirements.
-                      </div>
-                    </li>
-                  </ul>
-
-                  <div className="pt-4 border-t border-stone-300">
-                    <p className="text-xs text-stone-400 leading-normal">
-                      *Please submit the catering request form at least 48 hours prior to your scheduled event so our culinary team has ample time to craft the perfect menu.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Form Interactive */}
-                <div className="lg:col-span-7 bg-white p-8 md:p-10 rounded-2xl border border-stone-200 shadow-xl relative">
-                  
-                  {cateringSubmitted ? (
-                    <div className="text-center py-12 space-y-4">
-                      <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">✓</div>
-                      <h3 className="font-serif font-black text-2xl text-stone-900">Thank You, {cateringForm.name}!</h3>
-                      <p className="text-stone-500 text-sm max-w-sm mx-auto">We have received your catering request. An event consultant from Tito's Diner will contact you by phone or email within 24 hours.</p>
-                      <button 
-                        onClick={() => {
-                          setCateringSubmitted(false);
-                          setCateringForm({
-                            name: '',
-                            email: '',
-                            phone: '',
-                            eventDate: '',
-                            guestCount: '25-50 guests',
-                            eventType: 'Corporate Event',
-                            notes: ''
-                          });
-                        }} 
-                        className="bg-stone-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs uppercase"
-                      >
-                        Submit New Request
-                      </button>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleCateringSubmit} className="space-y-6">
-                      <h3 className="font-serif font-bold text-2xl text-stone-900 mb-6">Catering Request Form</h3>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-2">Full Name</label>
-                          <input 
-                            type="text" 
-                            name="name"
-                            required
-                            value={cateringForm.name}
-                            onChange={handleCateringChange}
-                            placeholder="e.g. Jessica Miller"
-                            className="w-full bg-stone-50 border border-stone-200 focus:border-[#C1272D] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#C1272D]"
-                          />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div><label className="block text-xs font-bold text-stone-600 uppercase mb-2">Phone</label><input type="tel" name="phone" required value={cateringForm.phone} onChange={handleCateringChange} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none" /></div>
+                          <div><label className="block text-xs font-bold text-stone-600 uppercase mb-2">Event Date</label><input type="date" name="eventDate" required value={cateringForm.eventDate} onChange={handleCateringChange} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none" /></div>
                         </div>
-                        <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-2">Email Address</label>
-                          <input 
-                            type="email" 
-                            name="email"
-                            required
-                            value={cateringForm.email}
-                            onChange={handleCateringChange}
-                            placeholder="name@email.com"
-                            className="w-full bg-stone-50 border border-stone-200 focus:border-[#C1272D] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#C1272D]"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-2">Phone Number</label>
-                          <input 
-                            type="tel" 
-                            name="phone"
-                            required
-                            value={cateringForm.phone}
-                            onChange={handleCateringChange}
-                            placeholder="(703) 123-4567"
-                            className="w-full bg-stone-50 border border-stone-200 focus:border-[#C1272D] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#C1272D]"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-2">Event Date</label>
-                          <input 
-                            type="date" 
-                            name="eventDate"
-                            required
-                            value={cateringForm.eventDate}
-                            onChange={handleCateringChange}
-                            className="w-full bg-stone-50 border border-stone-200 focus:border-[#C1272D] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#C1272D]"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-2">Guest Count</label>
-                          <select 
-                            name="guestCount"
-                            value={cateringForm.guestCount}
-                            onChange={handleCateringChange}
-                            className="w-full bg-stone-50 border border-stone-200 focus:border-[#C1272D] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#C1272D]"
-                          >
-                            <option>Under 25 guests</option>
-                            <option>25 - 50 guests</option>
-                            <option>50 - 100 guests</option>
-                            <option>Over 100 guests</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-stone-600 uppercase mb-2">Event Type</label>
-                          <select 
-                            name="eventType"
-                            value={cateringForm.eventType}
-                            onChange={handleCateringChange}
-                            className="w-full bg-stone-50 border border-stone-200 focus:border-[#C1272D] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#C1272D]"
-                          >
-                            <option>Corporate Event</option>
-                            <option>Family Gathering</option>
-                            <option>Birthday Party</option>
-                            <option>Community Event</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-stone-600 uppercase mb-2">Special Requests or Dietary Notes</label>
-                        <textarea 
-                          rows="4"
-                          name="notes"
-                          value={cateringForm.notes}
-                          onChange={handleCateringChange}
-                          placeholder="Tell us what menu items you are interested in, dietary preferences, or specific delivery address details..."
-                          className="w-full bg-stone-50 border border-stone-200 focus:border-[#C1272D] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#C1272D]"
-                        ></textarea>
-                      </div>
-
-                      <button 
-                        type="submit"
-                        className="w-full bg-[#C1272D] hover:bg-[#A31F24] text-white font-bold py-4 rounded-xl shadow-lg transition-all text-sm uppercase tracking-wider"
-                      >
-                        Submit Catering Inquiry
-                      </button>
-                    </form>
-                  )}
-
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-        )}
-
-        {/* ==================================== */}
-        {/* TAB 4: ABOUT US PAGE                 */}
-        {/* ==================================== */}
-        {activeTab === 'about' && (
-          <div className="py-12 md:py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-              
-              {/* Header Title */}
-              <div className="text-center space-y-3">
-                <span className="text-[#C1272D] font-extrabold text-sm tracking-widest uppercase">OUR HERITAGE</span>
-                <h1 className="text-4xl md:text-5xl font-serif font-black text-stone-900">The Tito’s Story</h1>
-                <p className="text-stone-500 max-w-md mx-auto text-sm">Upholding family recipes, warm hospitality, and community traditions since day one.</p>
-                <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
-              </div>
-
-              {/* Story Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                
-                {/* Visual Art Story */}
-                <div className="lg:col-span-6 bg-[#FAF6F0] rounded-3xl border border-stone-200 relative overflow-hidden aspect-video flex items-center justify-center shadow-xl">
-                  <SmartImage 
-                    src="https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/titos_retro_facade.jpg"
-                    fallback="https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1200&q=80"
-                    alt="Retro Tito's Diner Facade History"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                {/* Narrative Details */}
-                <div className="lg:col-span-6 space-y-6">
-                  <h3 className="font-serif font-black text-3xl text-stone-900 leading-tight">Upholding Real Flavors for Over 45 Years</h3>
-                  
-                  <p className="text-stone-600 text-sm md:text-base leading-relaxed">
-                    Founded in 1978 by the Tito family, our modest diner began as a simple dream: to serve warm, hearty breakfasts to the hardworking community of Fairfax, Virginia. From day one, we pledged to never compromise on ingredients, portions, or family warmth.
-                  </p>
-                  
-                  <p className="text-stone-600 text-sm md:text-base leading-relaxed">
-                    While the world around us has sped up and generic food chains have multiplied, our griddle still flips the same fluffy buttermilk pancakes and handles the same premium hand-patted beef patties. For us, Tito’s is more than just a place to grab food — it is a comforting refuge of community laughter, nostalgia, and genuine American cooking.
-                  </p>
-
-                  {/* Core Value Badges */}
-                  <div className="grid grid-cols-3 gap-4 pt-4 text-center">
-                    <div className="bg-stone-100 p-4 rounded-xl border border-stone-200">
-                      <span className="block text-2xl font-black text-[#C1272D] font-serif">1978</span>
-                      <span className="text-[10px] text-stone-400 uppercase font-bold tracking-wider">Established</span>
-                    </div>
-                    <div className="bg-stone-100 p-4 rounded-xl border border-stone-200">
-                      <span className="block text-2xl font-black text-[#C1272D] font-serif">1M+</span>
-                      <span className="text-[10px] text-stone-400 uppercase font-bold tracking-wider">Pancakes Flipped</span>
-                    </div>
-                    <div className="bg-stone-100 p-4 rounded-xl border border-stone-200">
-                      <span className="block text-2xl font-black text-[#C1272D] font-serif">4.9+</span>
-                      <span className="text-[10px] text-stone-400 uppercase font-bold tracking-wider">Google Rating</span>
-                    </div>
+                        <button type="submit" className="w-full bg-[#C1272D] text-white font-bold py-4 rounded-xl shadow-lg text-sm uppercase tracking-wider">Submit Inquiry</button>
+                      </form>
+                    )}
                   </div>
                 </div>
-
-              </div>
-
-              {/* Our Mission Section */}
-              <div className="bg-[#FAF6F0] p-8 md:p-12 rounded-3xl border border-stone-200/80 text-center max-w-4xl mx-auto space-y-6">
-                <h3 className="font-serif font-bold text-2xl md:text-3xl text-stone-900">Our Community Mission</h3>
-                <p className="text-stone-600 text-sm md:text-base italic leading-relaxed">
-                  "To serve food that triggers memories and smiles, to unite families around comfortable tables, and to contribute genuinely to the strength and wellness of our local Fairfax neighborhoods with every single dish."
-                </p>
-                <div className="text-stone-400 font-bold uppercase tracking-wider text-[11px]">
-                  — The Tito’s Diner Family Management
-                </div>
-              </div>
-
-            </div>
-          </div>
-        )}
-
-        {/* ==================================== */}
-        {/* TAB 5: CONTACT & RESERVATION PAGE    */}
-        {/* ==================================== */}
-        {activeTab === 'contact' && (
-          <div className="py-12 md:py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-              
-              {/* Header Title */}
-              <div className="text-center space-y-3">
-                <span className="text-[#C1272D] font-extrabold text-sm tracking-widest uppercase">GET IN TOUCH</span>
-                <h1 className="text-4xl md:text-5xl font-serif font-black text-stone-900">Hours & Location</h1>
-                <p className="text-stone-500 max-w-md mx-auto text-sm">We are located in the heart of Fairfax, Virginia. Call or stop by today.</p>
-                <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-                
-                {/* Left: Contact Info Pillars */}
-                <div className="lg:col-span-5 space-y-8">
-                  
-                  {/* Address */}
-                  <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex items-start gap-4">
-                    <div className="bg-[#C1272D]/10 text-[#C1272D] p-3 rounded-xl shrink-0"><MapPin size={22} /></div>
-                    <div className="space-y-1">
-                      <h4 className="font-serif font-bold text-lg text-stone-900">Our Address</h4>
-                      <p className="text-stone-600 text-sm leading-relaxed">10511 Fairfax Blvd, Fairfax, VA 22030</p>
-                      <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="text-[#C1272D] text-xs font-bold hover:underline block pt-1 uppercase tracking-wider">Open in Google Maps →</a>
-                    </div>
-                  </div>
-
-                  {/* Operational Hours */}
-                  <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex items-start gap-4">
-                    <div className="bg-[#C1272D]/10 text-[#C1272D] p-3 rounded-xl shrink-0"><Clock size={22} /></div>
-                    <div className="space-y-1">
-                      <h4 className="font-serif font-bold text-lg text-stone-900">Dine-In Hours</h4>
-                      <p className="text-stone-600 text-sm leading-relaxed">Monday – Sunday: 6:00 AM – 9:00 PM</p>
-                      <span className="inline-block bg-[#C1272D]/10 text-[#C1272D] text-[11px] font-bold px-2.5 py-0.5 rounded mt-1">Breakfast All Day</span>
-                    </div>
-                  </div>
-
-                  {/* Hotlines */}
-                  <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex items-start gap-4">
-                    <div className="bg-[#C1272D]/10 text-[#C1272D] p-3 rounded-xl shrink-0"><Phone size={22} /></div>
-                    <div className="space-y-1">
-                      <h4 className="font-serif font-bold text-lg text-stone-900">Call Us Directly</h4>
-                      <p className="text-stone-600 text-sm leading-relaxed">Phone: <a href="tel:7032731570" className="font-bold hover:underline">(703) 273-1570</a></p>
-                      <p className="text-stone-500 text-xs">Reach out for tables above 10 guests or special arrangements.</p>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Right: Map & Directions Guide */}
-                <div className="lg:col-span-7 bg-white p-8 rounded-2xl border border-stone-200 shadow-xl space-y-6">
-                  <h3 className="font-serif font-bold text-2xl text-stone-900">Directions & Parking Guide</h3>
-                  <p className="text-stone-600 text-sm leading-relaxed">
-                    Tito’s Diner is situated conveniently along Fairfax Boulevard, making us easily accessible from major Fairfax roads and local highways.
-                  </p>
-                  
-                  <div className="bg-[#FAF6F0] p-5 rounded-xl border border-stone-200 text-stone-700 text-xs sm:text-sm space-y-3 leading-relaxed">
-                    <p>🚗 <strong>Complimentary Parking:</strong> We host a spacious, secure, free-of-charge private parking lot right in front of and to the side of the diner.</p>
-                    <p>🚌 <strong>Public Transit:</strong> Our diner is located just a quick 3-minute walk from the nearest Fairfax Blvd bus station.</p>
-                  </div>
-
-                  <div className="bg-stone-50 p-6 rounded-xl border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <h4 className="font-bold text-stone-900 text-sm">Have a question or need to confirm a reservation?</h4>
-                      <p className="text-stone-500 text-xs">Give our friendly counter staff a ring anytime during operating hours.</p>
-                    </div>
-                    <a 
-                      href="tel:7032731570"
-                      className="inline-flex items-center justify-center gap-2 bg-[#C1272D] hover:bg-[#A31F24] text-white font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider shadow transition-all shrink-0"
-                    >
-                      <Phone size={14} /> Call Now
-                    </a>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-        )}
-
-      </main>
-
-      {/* FOOTER SECTION */}
-      <footer className="bg-[#121212] text-stone-400 pt-16 pb-8 border-t border-stone-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          
-          {/* Brand Info */}
-          <div className="space-y-4">
-            <div className="bg-[#C1272D] p-2.5 rounded-xl text-white font-serif font-black text-lg tracking-tight inline-block rotate-[-2deg]">
-              <span className="block text-[9px] uppercase tracking-widest text-yellow-300 font-sans">Tito's</span>
-              <span className="text-base leading-none">DINER</span>
-            </div>
-            <p className="text-stone-400 text-xs leading-relaxed">
-              Serving retro comfort, fluffy all-day breakfasts, and premium Angus burgers to the Fairfax community since 1978.
-            </p>
-            <div className="text-xs text-stone-500">
-              © 2026 Tito's Diner. All rights reserved.
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h4 className="text-white font-bold font-serif text-sm uppercase tracking-wider">NAVIGATION</h4>
-            <ul className="space-y-2 text-xs">
-              <li><button onClick={() => setActiveTab('home')} className="hover:text-white transition-colors">Home</button></li>
-              <li><button onClick={() => setActiveTab('menu')} className="hover:text-white transition-colors">Our Menu</button></li>
-              <li><button onClick={() => setActiveTab('catering')} className="hover:text-white transition-colors">Catering</button></li>
-              <li><button onClick={() => setActiveTab('about')} className="hover:text-white transition-colors">Our Story</button></li>
-              <li><button onClick={() => setActiveTab('contact')} className="hover:text-white transition-colors">Contact & Hours</button></li>
-            </ul>
-          </div>
-
-          {/* Contact Details Quick */}
-          <div className="space-y-4">
-            <h4 className="text-white font-bold font-serif text-sm uppercase tracking-wider">CONTACT</h4>
-            <p className="text-xs text-stone-400 leading-relaxed">
-              10511 Fairfax Blvd,<br />
-              Fairfax, VA 22030<br />
-              Phone: (703) 273-1570
-            </p>
-          </div>
-
-          {/* Social / Support Box */}
-          <div className="space-y-4">
-            <h4 className="text-white font-bold font-serif text-sm uppercase tracking-wider">RECOGNITION</h4>
-            <p className="text-xs text-stone-400 leading-relaxed">
-              Redesigned to focus on premium, modern visual delivery while preserving authentic diner nostalgia.
-            </p>
-            <div className="pt-2">
-              <span className="text-[10px] uppercase font-bold tracking-widest bg-stone-800 text-yellow-500 px-3 py-1.5 rounded-lg">
-                ★ A Local Tradition Since 1978
-              </span>
-            </div>
-          </div>
-
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-stone-800 pt-8 text-center text-xs text-stone-600">
-          *This website is an interactive prototype prepared for the Tito’s Diner online redesign project.
-        </div>
-      </footer>
-
-      {/* ==================================== */}
-      {/* INTERACTIVE SHOPPING CART DIALOG    */}
-      {/* ==================================== */}
-      {cartOpen && (
-        <div className="fixed inset-0 bg-stone-950/70 backdrop-blur-sm z-50 flex justify-end transition-opacity duration-300 animate-fade-in">
-          <div className="bg-[#FDFBF7] w-full max-w-md h-full flex flex-col justify-between shadow-2xl relative border-l border-stone-200">
-            
-            {/* Header Cart */}
-            <div className="p-6 border-b border-stone-200 flex items-center justify-between bg-[#C1272D] text-white">
-              <div className="flex items-center gap-2">
-                <ShoppingBag size={20} />
-                <h3 className="font-serif font-black text-lg">Your Order</h3>
-                <span className="bg-white/20 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">
-                  {getCartCount()} Items
-                </span>
-              </div>
-              <button 
-                onClick={() => setCartOpen(false)}
-                className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-1.5 rounded-lg transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Cart Items List */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {cart.length === 0 ? (
-                <div className="text-center py-20 space-y-4 text-stone-500">
-                  <ShoppingBag size={48} className="mx-auto text-stone-300 animate-bounce" />
-                  <p className="font-semibold text-stone-700">Your Cart is Empty</p>
-                  <p className="text-xs max-w-xs mx-auto">Explore our delicious menu items and add them to your cart to begin an online order!</p>
-                  <button 
-                    onClick={() => {
-                      setCartOpen(false);
-                      setActiveTab('menu');
-                    }}
-                    className="bg-[#C1272D] text-white font-bold px-4 py-2 rounded-xl text-xs uppercase shadow-md"
-                  >
-                    View Our Menu
-                  </button>
-                </div>
-              ) : (
-                cart.map((item) => (
-                  <div 
-                    key={item.id}
-                    className="flex items-center justify-between gap-4 p-4 bg-white rounded-xl border border-stone-200 shadow-sm"
-                  >
-                    <div className="w-16 h-12 bg-stone-100 rounded-lg overflow-hidden shrink-0">
-                      <SmartImage 
-                        src={item.imageSrc}
-                        fallback={item.fallbackSrc}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-serif font-bold text-stone-900 text-sm truncate">{item.name}</h4>
-                      <p className="text-[#C1272D] font-black text-sm">${item.price}</p>
-                    </div>
-                    
-                    {/* Quantity Selector Counter */}
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => updateQuantity(item.id, -1)}
-                        className="bg-stone-100 hover:bg-stone-200 text-stone-800 p-1 rounded-md"
-                      >
-                        <Minus size={12} />
-                      </button>
-                      <span className="font-bold text-xs w-4 text-center">{item.quantity}</span>
-                      <button 
-                        onClick={() => updateQuantity(item.id, 1)}
-                        className="bg-stone-100 hover:bg-stone-200 text-stone-800 p-1 rounded-md"
-                      >
-                        <Plus size={12} />
-                      </button>
-                    </div>
-
-                    <button 
-                      onClick={() => removeFromCart(item.id, item.name)}
-                      className="text-stone-400 hover:text-[#C1272D] p-1 rounded"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Cart Footer Price Summary */}
-            {cart.length > 0 && (
-              <div className="p-6 border-t border-stone-200 bg-stone-50 space-y-4">
-                <div className="space-y-2 text-sm text-stone-600">
-                  <div className="flex justify-between">
-                    <span>Subtotal</span>
-                    <span className="font-bold text-stone-800">${getCartTotal().toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>VA Sales Tax (10%)</span>
-                    <span className="font-bold text-stone-800">${(getCartTotal() * 0.1).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between border-t border-stone-200 pt-3 text-base text-stone-900 font-extrabold font-serif">
-                    <span>Total Price</span>
-                    <span className="text-[#C1272D]">${(getCartTotal() * 1.1).toFixed(2)}</span>
-                  </div>
-                </div>
-
-                <button 
-                  onClick={handleCheckout}
-                  className="w-full bg-[#C1272D] hover:bg-[#A31F24] text-white font-bold py-4 rounded-xl shadow-lg transition-all text-xs uppercase tracking-wider text-center"
-                >
-                  Send Order to Kitchen
-                </button>
-                <p className="text-[10px] text-center text-stone-400">
-                  *Once submitted, our cashier desk will telephone you to validate payment and pick-up details.
-                </p>
               </div>
             )}
 
+            {activeTab === 'about' && (
+              <div className="py-12 md:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+                <div className="text-center space-y-3">
+                  <span className="text-[#C1272D] font-extrabold text-sm tracking-widest uppercase">OUR HERITAGE</span>
+                  <h1 className="text-4xl md:text-5xl font-serif font-black text-stone-900">The Tito’s Story</h1>
+                  <p className="text-stone-500 max-w-md mx-auto text-sm">Upholding family recipes, warm hospitality, and community traditions since day one.</p>
+                  <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                  <div className="lg:col-span-6 bg-[#FAF6F0] rounded-3xl border border-stone-200 overflow-hidden aspect-video">
+                    <SmartImage src="https://raw.githubusercontent.com/lengkongandreuw/titosdiner/main/asset/titos_retro_facade.jpg" fallback="https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1200&q=80" alt="Tito's Facade" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="lg:col-span-6 space-y-6">
+                    <h3 className="font-serif font-black text-3xl text-stone-900 leading-tight">Upholding Real Flavors for Over 45 Years</h3>
+                    <p className="text-stone-600 text-sm md:text-base leading-relaxed">Founded in 1978 by the Tito family, our modest diner began as a simple dream: to serve warm, hearty breakfasts to the hardworking community of Fairfax, Virginia. From day one, we pledged to never compromise on ingredients, portions, or family warmth.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'contact' && (
+              <div className="py-12 md:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                <div className="text-center space-y-3">
+                  <span className="text-[#C1272D] font-extrabold text-sm tracking-widest uppercase">GET IN TOUCH</span>
+                  <h1 className="text-4xl md:text-5xl font-serif font-black text-stone-900">Hours & Location</h1>
+                  <p className="text-stone-500 max-w-md mx-auto text-sm">We are located in the heart of Fairfax, Virginia. Call or stop by today.</p>
+                  <div className="w-16 h-1 bg-[#C1272D] mx-auto rounded-full" />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                  <div className="lg:col-span-5 space-y-8">
+                    <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex items-start gap-4">
+                      <div className="bg-[#C1272D]/10 text-[#C1272D] p-3 rounded-xl shrink-0"><MapPin size={22} /></div>
+                      <div className="space-y-1">
+                        <h4 className="font-serif font-bold text-lg text-stone-900">Our Address</h4>
+                        <p className="text-stone-600 text-sm leading-relaxed">10511 Fairfax Blvd, Fairfax, VA 22030</p>
+                      </div>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex items-start gap-4">
+                      <div className="bg-[#C1272D]/10 text-[#C1272D] p-3 rounded-xl shrink-0"><Clock size={22} /></div>
+                      <div className="space-y-1">
+                        <h4 className="font-serif font-bold text-lg text-stone-900">Dine-In Hours</h4>
+                        <p className="text-stone-600 text-sm leading-relaxed">Monday – Sunday: 6:00 AM – 9:00 PM</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="lg:col-span-7 bg-white p-8 rounded-2xl border border-stone-200 shadow-xl space-y-6">
+                    <h3 className="font-serif font-bold text-2xl text-stone-900">Directions & Parking Guide</h3>
+                    <p className="text-stone-600 text-sm leading-relaxed">Tito’s Diner is situated conveniently along Fairfax Boulevard, making us easily accessible from major Fairfax roads and local highways.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+
+          <footer className="bg-[#121212] text-stone-400 pt-16 pb-8 border-t border-stone-800">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+              <div className="space-y-4">
+                <div className="bg-[#C1272D] p-2.5 rounded-xl text-white font-serif font-black text-lg tracking-tight inline-block rotate-[-2deg]">
+                  <span className="block text-[9px] uppercase tracking-widest text-yellow-300 font-sans">Tito's</span><span className="text-base leading-none">DINER</span>
+                </div>
+                <p className="text-stone-400 text-xs leading-relaxed">Serving retro comfort, fluffy all-day breakfasts, and premium Angus burgers to the Fairfax community since 1978.</p>
+                <div className="text-xs text-stone-500">© 2026 Tito's Diner. All rights reserved.</div>
+              </div>
+              <div className="space-y-4">
+                <h4 className="text-white font-bold font-serif text-sm uppercase tracking-wider">NAVIGATION</h4>
+                <ul className="space-y-2 text-xs">
+                  <li><button onClick={() => setActiveTab('home')} className="hover:text-white transition-colors">Home</button></li>
+                  <li><button onClick={() => setActiveTab('menu')} className="hover:text-white transition-colors">Our Menu</button></li>
+                  <li><button onClick={() => setActiveTab('catering')} className="hover:text-white transition-colors">Catering</button></li>
+                  <li><button onClick={() => setActiveTab('about')} className="hover:text-white transition-colors">Our Story</button></li>
+                  <li><button onClick={() => setActiveTab('contact')} className="hover:text-white transition-colors">Contact & Hours</button></li>
+                </ul>
+              </div>
+              <div className="space-y-4">
+                <h4 className="text-white font-bold font-serif text-sm uppercase tracking-wider">CONTACT</h4>
+                <p className="text-xs text-stone-400 leading-relaxed">10511 Fairfax Blvd,<br />Fairfax, VA 22030<br />Phone: (703) 273-1570</p>
+              </div>
+              <div className="space-y-4">
+                <h4 className="text-white font-bold font-serif text-sm uppercase tracking-wider">RECOGNITION</h4>
+                <p className="text-xs text-stone-400 leading-relaxed">Redesigned to focus on premium, modern visual delivery while preserving authentic diner nostalgia.</p>
+                <div className="pt-2"><span className="text-[10px] uppercase font-bold tracking-widest bg-stone-800 text-yellow-500 px-3 py-1.5 rounded-lg">★ A Local Tradition Since 1978</span></div>
+              </div>
+            </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-stone-800 pt-8 text-center text-xs text-stone-600">*This website is an interactive prototype prepared for the Tito’s Diner online redesign project.</div>
+          </footer>
+
+          {cartOpen && (
+            <div className="fixed inset-0 bg-stone-950/70 backdrop-blur-sm z-50 flex justify-end transition-opacity duration-300">
+              <div className="bg-[#FDFBF7] w-full max-w-md h-full flex flex-col justify-between shadow-2xl relative border-l border-stone-200">
+                <div className="p-6 border-b border-stone-200 flex items-center justify-between bg-[#C1272D] text-white">
+                  <div className="flex items-center gap-2"><ShoppingBag size={20} /><h3 className="font-serif font-black text-lg">Your Order</h3><span className="bg-white/20 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">{getCartCount()} Items</span></div>
+                  <button onClick={() => setCartOpen(false)} className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-1.5 rounded-lg"><X size={20} /></button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  {cart.length === 0 ? (
+                    <div className="text-center py-20 space-y-4 text-stone-500">
+                      <ShoppingBag size={48} className="mx-auto text-stone-300 animate-bounce" /><p className="font-semibold text-stone-700">Your Cart is Empty</p><p className="text-xs max-w-xs mx-auto">Explore our delicious menu items and add them to your cart to begin an online order!</p>
+                      <button onClick={() => { setCartOpen(false); setActiveTab('menu'); }} className="bg-[#C1272D] text-white font-bold px-4 py-2 rounded-xl text-xs uppercase shadow-md">View Our Menu</button>
+                    </div>
+                  ) : (
+                    cart.map((item) => (
+                      <div key={item.id} className="flex items-center justify-between gap-4 p-4 bg-white rounded-xl border border-stone-200 shadow-sm">
+                        <div className="w-16 h-12 bg-stone-100 rounded-lg overflow-hidden shrink-0"><SmartImage src={item.imageSrc} fallback={item.fallbackSrc} alt={item.name} className="w-full h-full object-cover" /></div>
+                        <div className="flex-1 min-w-0"><h4 className="font-serif font-bold text-stone-900 text-sm truncate">{item.name}</h4><p className="text-[#C1272D] font-black text-sm">${item.price}</p></div>
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => updateQuantity(item.id, -1)} className="bg-stone-100 hover:bg-stone-200 text-stone-800 p-1 rounded-md"><Minus size={12} /></button>
+                          <span className="font-bold text-xs w-4 text-center">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, 1)} className="bg-stone-100 hover:bg-stone-200 text-stone-800 p-1 rounded-md"><Plus size={12} /></button>
+                        </div>
+                        <button onClick={() => removeFromCart(item.id, item.name)} className="text-stone-400 hover:text-[#C1272D] p-1 rounded"><Trash2 size={16} /></button>
+                      </div>
+                    ))
+                  )}
+                </div>
+                {cart.length > 0 && (
+                  <div className="p-6 border-t border-stone-200 bg-stone-50 space-y-4">
+                    <div className="space-y-2 text-sm text-stone-600">
+                      <div className="flex justify-between"><span>Subtotal</span><span className="font-bold text-stone-800">${getCartTotal().toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span>VA Sales Tax (10%)</span><span className="font-bold text-stone-800">${(getCartTotal() * 0.1).toFixed(2)}</span></div>
+                      <div className="flex justify-between border-t border-stone-200 pt-3 text-base text-stone-900 font-extrabold font-serif"><span>Total Price</span><span className="text-[#C1272D]">${(getCartTotal() * 1.1).toFixed(2)}</span></div>
+                    </div>
+                    <button onClick={handleCheckout} className="w-full bg-[#C1272D] hover:bg-[#A31F24] text-white font-bold py-4 rounded-xl shadow-lg text-xs uppercase tracking-wider text-center">Send Order to Kitchen</button>
+                    <p className="text-[10px] text-center text-stone-400">*Once submitted, our cashier desk will telephone you to validate payment and pick-up details.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#FDFBF7]/95 backdrop-blur-md border-t border-stone-200 px-4 py-3 z-30 flex items-center justify-around gap-2 shadow-2xl">
+            <a href="tel:7032731570" className="flex-1 flex flex-col items-center justify-center text-stone-600 hover:text-[#C1272D]"><Phone size={18} /><span className="text-[10px] font-bold mt-1 uppercase">Call Us</span></a>
+            <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="flex-1 flex flex-col items-center justify-center text-stone-600 hover:text-[#C1272D]"><MapPin size={18} /><span className="text-[10px] font-bold mt-1 uppercase">Directions</span></a>
+            <button onClick={() => setActiveTab('menu')} className="flex-1.5 flex items-center justify-center gap-1.5 bg-[#C1272D] text-white font-black text-xs px-4 py-2.5 rounded-xl shadow uppercase"><ShoppingBag size={14} /> Order Menu</button>
           </div>
+
         </div>
-      )}
+      );
+    }
 
-      {/* STICKY MOBILE ACTION BAR */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#FDFBF7]/95 backdrop-blur-md border-t border-stone-200 px-4 py-3 z-30 flex items-center justify-around gap-2 shadow-2xl">
-        <a 
-          href="tel:7032731570"
-          className="flex-1 flex flex-col items-center justify-center text-stone-600 hover:text-[#C1272D] transition-colors"
-        >
-          <Phone size={18} />
-          <span className="text-[10px] font-bold mt-1 uppercase">Call Us</span>
-        </a>
-        <a 
-          href="https://maps.google.com" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="flex-1 flex flex-col items-center justify-center text-stone-600 hover:text-[#C1272D] transition-colors"
-        >
-          <MapPin size={18} />
-          <span className="text-[10px] font-bold mt-1 uppercase">Directions</span>
-        </a>
-        <button 
-          onClick={() => setActiveTab('menu')}
-          className="flex-1.5 flex items-center justify-center gap-1.5 bg-[#C1272D] hover:bg-[#A31F24] text-white font-black text-xs px-4 py-2.5 rounded-xl shadow transition-all uppercase"
-        >
-          <ShoppingBag size={14} /> Order Menu
-        </button>
-      </div>
-
-    </div>
-  );
-}
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
